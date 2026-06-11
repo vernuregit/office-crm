@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-primary:  #4F46E5;
+  --color-primaryD: #3730A3;
+  --color-accent:   #7C3AED;
+  --color-success:  #10B981;
+  --color-warning:  #F59E0B;
+  --color-danger:   #EF4444;
+  --color-surface:  #F5F7FF;
+  --color-card:     #FFFFFF;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+
+  --background-image-gradient-primary: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --background-image-gradient-soft:    linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%);
+}

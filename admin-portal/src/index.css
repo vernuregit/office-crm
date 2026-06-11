@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+
+/* In your index.css or App.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&display=swap');
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
