@@ -3,23 +3,19 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-import { FolderOpen } from "lucide-react";
 import {
-  LayoutDashboard, ClipboardList, Users,
-  Receipt, CalendarOff, User, LogOut, Building2,
-  TicketCheck
+  LayoutDashboard, ClipboardList,
+  TicketCheck, CalendarOff, User, LogOut, Building2,
 } from "lucide-react";
+import Halo from "../../public/halologo.png";
+import Halowhite from "../../public/Logowhite.png";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { label: "My Tasks", path: "/tasks", icon: ClipboardList },
-  { label: "Clients", path: "/clients", icon: Users },
-  { label: "Invoices", path: "/invoices", icon: Receipt },
-  { label: "Documents", path: "/documents", icon: FolderOpen },
   { label: "Tickets", path: "/tickets", icon: TicketCheck },
   { label: "Leave", path: "/leave", icon: CalendarOff },
   { label: "Profile", path: "/profile", icon: User },
-
 ];
 
 const Sidebar = () => {
@@ -32,40 +28,22 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col shadow-sm">
+    <aside className="w-64 min-h-screen bg-[#153485] border-r border-gray-100 flex flex-col">
 
+      
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center shadow-md">
-            <Building2 size={18} className="text-white" />
-          </div>
-          <div>
-            <p className="font-bold text-gray-900 text-sm tracking-tight">CA Firm</p>
-            <p className="text-xs text-gray-600 font-medium">Employee Portal</p>
-          </div>
+      <div className="px-5 py-0 border-b border-gray-100 flex justify-center">
+      
+          <div className="w-full h-20 rounded-2xl  flex items-center justify-center flex-shrink-0 shadow-inner backdrop-blur-sm p-1.5">
+            <img src={Halowhite} alt="Halo CRM" className="w-full h-full object-contain" />
+         
         </div>
-      </div>
 
-      {/* Employee Card */}
-      <div className="mx-4 my-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-sm">
-              {userData?.name?.charAt(0).toUpperCase() || "E"}
-            </span>
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{userData?.name}</p>
-            <p className="text-xs text-gray-600 font-medium">{userData?.designation || "Employee"}</p>
-          </div>
-        </div>
       </div>
-
       {/* Nav */}
-      <nav className="flex-1 px-3 space-y-0.5">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest px-3 mb-2">
-          Main Menu
+      <nav className="flex-1 px-3 pt-6 space-y-1">
+        <p className="text-[10px] font-semibold text-gray-300 uppercase tracking-widest px-3 mb-3">
+          Navigation
         </p>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -74,16 +52,22 @@ const Sidebar = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer
+                `group flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300 ease-out cursor-pointer
                 ${isActive
-                  ? "bg-[#00A499] text-white shadow-md"
-                  : "text-gray-500 hover:bg-indigo-50 hover:text-[#00A499]"
+                  ? "bg-white text-black shadow-md shadow-blue-900/20 -translate-y-0.5"
+                  : "text-white/90 hover:bg-gray-50 hover:text-gray-900 hover:-translate-y-0.5 hover:shadow-sm"
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={17} className={isActive ? "text-white" : "text-gray-400"} />
+                  <Icon
+                    size={16}
+                    className={isActive
+                      ? "text-black"
+                      : "text-white/90 group-hover:text-gray-600 transition-colors duration-200"
+                    }
+                  />
                   {item.label}
                 </>
               )}
@@ -92,13 +76,31 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-gray-100">
+      {/* User info + logout */}
+      <div className="p-4  space-y-3 mt-32">
+        {/* Mini user card */}
+        <div className="flex items-center gap-3 px-2 py-1">
+          <div className="w-8 h-8 rounded-xl bg-[#153485]/10 border-2 border-white flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-white">
+              {userData?.name?.charAt(0).toUpperCase() || "E"}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-white truncate leading-tight">
+              {userData?.name || "Employee"}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {userData?.designation || "Employee"}
+            </p>
+          </div>
+        </div>
+
+        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all duration-150"
+          className="w-full flex  items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold text-white border border-red-100 hover:bg-red-50 cursor-pointer transition-all duration-300 ease-out hover:-translate-y-0.5  bg-red-500 hover:text-red-500 hover:shadow-md hover:shadow-red-200 active:translate-y-0"
         >
-          <LogOut size={17} />
+          <LogOut size={16} />
           Sign Out
         </button>
       </div>

@@ -64,7 +64,7 @@ const TicketDetail = ({ ticket, onClose, onReply, onStatusChange }) => {
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-3xl flex items-start justify-between z-10">
           <div className="flex-1 pr-4">
             <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="text-xs text-[#00A499] border border-teal-100 bg-teal-50 px-2.5 py-0.5 rounded-full font-semibold">
+              <span className="text-xs text-[#153485] border border-teal-100 bg-teal-50 px-2.5 py-0.5 rounded-full font-semibold">
                 <Tag size={10} className="inline mr-1" />{localTicket.category}
               </span>
               <StatusBadge status={localTicket.status} />
@@ -175,11 +175,11 @@ const TicketDetail = ({ ticket, onClose, onReply, onStatusChange }) => {
                   onChange={e => setReply(e.target.value)}
                   placeholder="Type your reply to the client..."
                   className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                             focus:outline-none focus:ring-2 focus:ring-[#00A499]
-                             focus:border-[#00A499] transition-all bg-white resize-none"
+                             focus:outline-none focus:ring-2 focus:ring-[#153485]
+                             focus:border-[#153485] transition-all bg-white resize-none"
                 />
                 <button onClick={handleReply} disabled={!reply.trim() || submitting}
-                  className="w-10 h-10 mt-auto rounded-xl bg-[#00A499] text-white flex items-center
+                  className="w-10 h-10 mt-auto rounded-xl bg-[#153485] text-white flex items-center
                              justify-center hover:opacity-90 transition-all disabled:opacity-40 shadow-md flex-shrink-0">
                   {submitting
                     ? <Loader2 size={14} className="animate-spin" />
@@ -297,7 +297,7 @@ const EmployeeTickets = () => {
     <Layout title="Support Tickets">
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 px-5 mt-5">
         {[
           { label: "Total",       val: counts.total,      Icon: TicketCheck,  color: "text-indigo-600", bg: "bg-indigo-50"  },
           { label: "Open",        val: counts.open,       Icon: Circle,       color: "text-blue-600",   bg: "bg-blue-50"    },
@@ -319,7 +319,7 @@ const EmployeeTickets = () => {
       </div>
 
       {/* Search + Filter */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+      <div className="flex flex-col sm:flex-row gap-3 mb-5 px-5">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -328,8 +328,8 @@ const EmployeeTickets = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#00A499]
-                       focus:border-[#00A499] transition-all bg-white shadow-sm"
+                       focus:outline-none focus:ring-2 focus:ring-[#153485]
+                       focus:border-[#153485] transition-all bg-white shadow-sm"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -337,8 +337,8 @@ const EmployeeTickets = () => {
             <button key={tab} onClick={() => setFilter(tab)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all cursor-pointer
                 ${filter === tab
-                  ? "bg-[#00A499] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#00A499]"
+                  ? "bg-[#153485] text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
                 }`}>
               {tab}
             </button>
@@ -383,7 +383,7 @@ const EmployeeTickets = () => {
 
                     {/* Content */}
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-gray-800 truncate group-hover:text-[#00A499] transition-colors">
+                      <p className="text-sm font-bold text-gray-800 truncate group-hover:text-[#153485] transition-colors">
                         {ticket.subject}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -415,7 +415,7 @@ const EmployeeTickets = () => {
                       <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" title="Client replied" />
                     )}
                     <StatusBadge status={ticket.status} />
-                    <ChevronRight size={16} className="text-gray-300 group-hover:text-[#00A499] transition-colors" />
+                    <ChevronRight size={16} className="text-gray-300 group-hover:text-[#153485] transition-colors" />
                   </div>
                 </div>
               );

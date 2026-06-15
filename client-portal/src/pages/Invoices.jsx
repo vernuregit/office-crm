@@ -102,8 +102,8 @@ const Invoices = () => {
             onClick={() => setFilter(tab)}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-all cursor-pointer
               ${filter === tab
-                ? "bg-[#00A499] text-white shadow-md"
-                : "bg-white text-gray-500 border border-gray-200 hover:text-[#00A499]"
+                ? "bg-[#153485] text-white shadow-md"
+                : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
               }`}
           >
             {tab}
@@ -173,7 +173,7 @@ const Invoices = () => {
                         <button
                           onClick={() => handlePay(inv)}
                           disabled={payingId === inv.id}
-                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#00A499] text-white hover:opacity-90 transition-all font-semibold disabled:opacity-50"
+                          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#153485] text-white hover:opacity-90 transition-all font-semibold disabled:opacity-50"
                         >
                           <CreditCard size={12} />
                           {payingId === inv.id ? "Opening..." : "Pay Now"}

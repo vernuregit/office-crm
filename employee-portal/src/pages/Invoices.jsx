@@ -39,7 +39,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-3xl flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center">
               <FileText size={18} className="text-white" />
             </div>
             <div>
@@ -83,7 +83,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
             ].map(({ Icon, label, value }) => (
               <div key={label} className="p-3.5 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} className="text-[#00A499]" />
+                  <Icon size={13} className="text-[#153485]" />
                   <p className="text-xs text-gray-400 font-medium">{label}</p>
                 </div>
                 <p className="text-sm font-bold text-gray-800 truncate">{value || "—"}</p>
@@ -133,7 +133,7 @@ const InvoiceModal = ({ invoice, onClose }) => {
                   )}
                   <div className="flex justify-between text-base font-black text-gray-900 pt-1.5 border-t border-gray-200">
                     <span>Total</span>
-                    <span className="text-[#00A499]">₹{(invoice.total || total).toLocaleString("en-IN")}</span>
+                    <span className="text-[#153485]">₹{(invoice.total || total).toLocaleString("en-IN")}</span>
                   </div>
                 </div>
               </div>
@@ -320,7 +320,7 @@ const Invoices = () => {
 
       {/* Total Value Banner */}
       {invoices.length > 0 && (
-        <div className="bg-[#00A499] rounded-2xl p-5 mb-6 text-white flex items-center justify-between">
+        <div className="bg-[#153485] rounded-2xl p-5 mb-6 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
             <IndianRupee size={22} />
             <div>
@@ -343,8 +343,8 @@ const Invoices = () => {
             <button key={tab} onClick={() => setFilter(tab)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-all cursor-pointer
                 ${filter === tab
-                  ? "bg-[#00A499] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#00A499]"
+                  ? "bg-[#153485] text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
                 }`}>
               {tab}
             </button>
@@ -355,8 +355,8 @@ const Invoices = () => {
           <input type="text" placeholder="Search invoices..." value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#00A499]
-                       focus:border-[#00A499] transition-all bg-white" />
+                       focus:outline-none focus:ring-2 focus:ring-[#153485]
+                       focus:border-[#153485] transition-all bg-white" />
         </div>
       </div>
 

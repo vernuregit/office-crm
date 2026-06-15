@@ -114,7 +114,7 @@ const SessionRow = ({ session, empName, onDelete }) => {
 
 // ─── Employee Summary Card ────────────────────────────────────────
 const AVATAR_COLORS = [
-  "bg-[#00A499]",
+  "bg-[#153485]",
 ];
 
 const EmpSummaryCard = ({ emp, totalMins, sessionCount, isSelected, onClick }) => {

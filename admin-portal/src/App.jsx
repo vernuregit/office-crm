@@ -33,8 +33,8 @@ function AppShell() {
         {/* Protected */}
         <Route path="/" element={<Guarded><Dashboard /></Guarded>} />
         <Route path="/employees" element={<Guarded><Employees /></Guarded>} />
-        <Route path="/clients" element={<Guarded><Clients /></Guarded>} />
-        <Route path="/assign" element={<Guarded><AssignClient /></Guarded>} />
+        {/* <Route path="/clients" element={<Guarded><Clients /></Guarded>} /> */}
+        {/* <Route path="/assign" element={<Guarded><AssignClient /></Guarded>} /> */}
         <Route path="/tasks" element={<Guarded><Tasks /></Guarded>} />
         <Route path="/invoices" element={<Guarded><Invoices /></Guarded>} />
         <Route path="/leave" element={<Guarded><LeaveRequests /></Guarded>} />

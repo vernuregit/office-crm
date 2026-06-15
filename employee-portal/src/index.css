@@ -9,7 +9,7 @@
   --color-warning:   #F59E0B;
   --color-danger:    #EF4444;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui;
+   --font-sans: 'Geist', 'Inter', sans-serif;
 
   --radius-xl:  0.75rem;
   --radius-2xl: 1rem;
@@ -20,8 +20,9 @@
 body {
   font-family: var(--font-sans);
   background-color: #F5F7FF;
-  color: #1f2937;
+  color: #111827;
   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scrollbar hide utility */

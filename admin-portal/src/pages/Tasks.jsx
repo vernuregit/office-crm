@@ -15,16 +15,16 @@ import {
 // ─── Constants ────────────────────────────────────────────────────
 const STATUSES = [
   { value: "pending",     label: "Pending",     color: "text-gray-500",    bg: "bg-gray-100   border-gray-200"   },
-  { value: "in_progress", label: "In Progress", color: "text-amber-600",   bg: "bg-amber-50   border-amber-100"  },
-  { value: "completed",   label: "Completed",   color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100"},
-  { value: "cancelled",   label: "Cancelled",   color: "text-red-500",     bg: "bg-red-50     border-red-100"    },
+  { value: "in_progress", label: "In Progress", color: "text-amber-600",   bg: "bg-amber-50   border-amber-200"  },
+  { value: "completed",   label: "Completed",   color: "text-[#0F6E56]",   bg: "bg-[#E1F5EE]  border-[#5DCAA5]"  },
+  { value: "cancelled",   label: "Cancelled",   color: "text-red-500",     bg: "bg-red-50     border-red-200"    },
 ];
 
 const PRIORITIES = [
-  { value: "low",    label: "Low",    color: "text-gray-500",  bg: "bg-gray-100  border-gray-200"  },
-  { value: "medium", label: "Medium", color: "text-blue-600",  bg: "bg-blue-50   border-blue-100"  },
-  { value: "high",   label: "High",   color: "text-amber-600", bg: "bg-amber-50  border-amber-100" },
-  { value: "urgent", label: "Urgent", color: "text-red-500",   bg: "bg-red-50    border-red-100"   },
+  { value: "low",    label: "Low",    color: "text-[#0F6E56]",  bg: "bg-[#E1F5EE] border-[#5DCAA5]"  },
+  { value: "medium", label: "Medium", color: "text-[#153485]",  bg: "bg-[#E6F1FB] border-[#85B7EB]"  },
+  { value: "high",   label: "High",   color: "text-amber-700",  bg: "bg-amber-50  border-amber-200"  },
+  { value: "urgent", label: "Urgent", color: "text-red-600",    bg: "bg-red-50    border-red-200"    },
 ];
 
 const statusMeta   = (v) => STATUSES.find(s  => s.value === v) || STATUSES[0];
@@ -33,23 +33,23 @@ const priorityMeta = (v) => PRIORITIES.find(p => p.value === v) || PRIORITIES[0]
 // ─── Toast ────────────────────────────────────────────────────────
 const Toast = ({ msg, type, onClose }) => (
   <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl
-    ${type === "success" ? "bg-emerald-500" : "bg-red-500"} text-white text-sm font-semibold`}>
+    ${type === "success" ? "bg-[#153485]" : "bg-red-500"} text-white text-sm font-semibold`}>
     {type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
     {msg}
-    <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100"><X size={14} /></button>
+    <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100 cursor-pointer"><X size={14} /></button>
   </div>
 );
 
 // ─── Shared field styles ──────────────────────────────────────────
 const inputCls =
   `w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800
-   placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400
-   focus:border-emerald-400 transition-all`;
+   placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#153485]/30
+   focus:border-[#153485] transition-all`;
 
 const selectCls =
   `w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800
-   focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400
-   appearance-none transition-all`;
+   focus:outline-none focus:ring-2 focus:ring-[#153485]/30 focus:border-[#153485]
+   appearance-none transition-all cursor-pointer`;
 
 // ─── Task Form Modal ──────────────────────────────────────────────
 const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
@@ -98,20 +98,20 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-      <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-lg shadow-2xl shadow-gray-200/80 max-h-[92vh] overflow-y-auto">
+      <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-lg shadow-2xl shadow-gray-200/80 max-h-[92vh] overflow-y-auto">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-              <ClipboardList size={16} className="text-emerald-600" />
+            <div className="w-9 h-9 rounded-xl bg-[#E6F1FB] border border-[#85B7EB]/40 flex items-center justify-center">
+              <ClipboardList size={16} className="text-[#153485]" />
             </div>
-            <h2 className="text-sm font-black text-gray-900">
+            <h2 className="text-sm font-bold text-gray-900">
               {isEdit ? "Edit Task" : "Create New Task"}
             </h2>
           </div>
           <button onClick={onClose}
-            className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-lg transition-all">
+            className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-lg transition-all cursor-pointer">
             <X size={18} />
           </button>
         </div>
@@ -120,7 +120,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               Task Title *
             </label>
             <input type="text" value={form.title}
@@ -131,20 +131,18 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               Description
             </label>
             <textarea value={form.description}
               onChange={e => set("description", e.target.value)}
               placeholder="Add details about this task…" rows={3}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                         text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2
-                         focus:ring-emerald-400 focus:border-emerald-400 transition-all resize-none" />
+              className={`${inputCls} resize-none`} />
           </div>
 
           {/* Assign Employee */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               <UserCheck size={12} className="inline mr-1" />Assign To Employee
             </label>
             <div className="relative">
@@ -163,7 +161,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
           {/* Linked Client */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               <UserSquare2 size={12} className="inline mr-1" />Linked Client
             </label>
             <div className="relative">
@@ -183,7 +181,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
           {/* Priority + Status */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
                 <Flag size={12} className="inline mr-1" />Priority
               </label>
               <div className="relative">
@@ -195,7 +193,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
                 Status
               </label>
               <div className="relative">
@@ -210,7 +208,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
           {/* Due Date */}
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
               <Calendar size={12} className="inline mr-1" />Due Date
             </label>
             <input type="date" value={form.dueDate}
@@ -227,11 +225,11 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-all">
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-emerald-100">
+              className="flex-1 bg-[#153485] hover:bg-[#1a3f9e] disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm border border-white/10 shadow-md shadow-blue-900/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 cursor-pointer">
               {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Task"}
             </button>
           </div>
@@ -248,37 +246,37 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "completed";
 
   const borderAccent =
-    task.status === "completed"   ? "border-l-4 border-l-emerald-400" :
-    task.status === "in_progress" ? "border-l-4 border-l-amber-400"   :
-    task.status === "cancelled"   ? "border-l-4 border-l-red-300"     :
-    "border-l-4 border-l-gray-200";
+    task.status === "completed"   ? "border-l-[3px] border-l-[#1D9E75]" :
+    task.status === "in_progress" ? "border-l-[3px] border-l-amber-400"  :
+    task.status === "cancelled"   ? "border-l-[3px] border-l-red-300"    :
+    "border-l-[3px] border-l-gray-200";
 
   return (
-    <div className={`bg-white border border-gray-100 rounded-2xl p-5 hover:border-gray-200
-                     hover:shadow-md hover:shadow-gray-100/80 transition-all duration-200
-                     shadow-sm ${borderAccent}`}>
+    <div className={`bg-white border border-gray-100 rounded-2xl p-5
+                     hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-100/80 hover:border-gray-200
+                     transition-all duration-300 ease-out shadow-sm ${borderAccent}`}>
 
       {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <p className={`text-sm font-bold leading-snug
+          <p className={`text-sm font-semibold leading-snug
             ${task.status === "completed" ? "line-through text-gray-400" : "text-gray-900"}`}>
             {task.title}
           </p>
           {task.description && (
-            <p className="text-xs text-gray-400 font-medium mt-1 line-clamp-2">
+            <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
               {task.description}
             </p>
           )}
         </div>
         <div className="flex gap-1.5 flex-shrink-0">
           <button onClick={() => onEdit(task)}
-            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-blue-50 hover:border-blue-100 flex items-center justify-center text-gray-400 hover:text-blue-600 transition-all"
+            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-[#E6F1FB] hover:border-[#85B7EB]/40 flex items-center justify-center text-gray-400 hover:text-[#153485] transition-all duration-200 cursor-pointer"
             aria-label="Edit task">
             <Pencil size={12} />
           </button>
           <button onClick={() => onDelete(task)}
-            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all"
+            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all duration-200 cursor-pointer"
             aria-label="Delete task">
             <Trash2 size={12} />
           </button>
@@ -287,16 +285,16 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
 
       {/* Badges */}
       <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${pm.bg} ${pm.color}`}>
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${pm.bg} ${pm.color}`}>
           <Flag size={10} className="inline mr-1" />{pm.label}
         </span>
         {task.assignedToName && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-indigo-100 bg-indigo-50 text-indigo-600">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-[#85B7EB]/40 bg-[#E6F1FB] text-[#153485]">
             <UserCheck size={10} className="inline mr-1" />{task.assignedToName}
           </span>
         )}
         {task.clientName && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-blue-100 bg-blue-50 text-blue-600">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-[#AFA9EC] bg-[#EEEDFE] text-[#3C3489]">
             <UserSquare2 size={10} className="inline mr-1" />{task.clientName}
           </span>
         )}
@@ -319,7 +317,7 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
           <select
             value={task.status}
             onChange={e => onStatusChange(task.id, e.target.value)}
-            className={`w-full text-xs font-bold px-2.5 py-1 rounded-lg border appearance-none cursor-pointer
+            className={`w-full text-xs font-semibold px-2.5 py-1 rounded-lg border appearance-none cursor-pointer
                         bg-transparent focus:outline-none pr-6 ${sm.bg} ${sm.color}`}
           >
             {STATUSES.map(s => (
@@ -338,21 +336,21 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
 // ─── Delete Confirm ───────────────────────────────────────────────
 const DeleteModal = ({ task, onConfirm, onClose, loading }) => (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-    <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-sm p-6 shadow-2xl shadow-gray-200/80 text-center">
+    <div className="bg-white border border-gray-100 rounded-2xl w-full max-w-sm p-6 shadow-2xl shadow-gray-200/80 text-center">
       <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-4">
         <Trash2 size={20} className="text-red-500" />
       </div>
-      <h3 className="text-base font-black text-gray-900 mb-1">Delete Task</h3>
+      <h3 className="text-base font-bold text-gray-900 mb-1">Delete Task</h3>
       <p className="text-sm text-gray-500 font-medium mb-6 line-clamp-2">
         Delete <span className="text-gray-900 font-bold">"{task?.title}"</span>? This cannot be undone.
       </p>
       <div className="flex gap-3">
         <button onClick={onClose}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-all">
+          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-sm transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
           Cancel
         </button>
         <button onClick={onConfirm} disabled={loading}
-          className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-red-100">
+          className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm shadow-red-200 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:shadow-red-200 active:translate-y-0 cursor-pointer">
           {loading ? "Deleting…" : "Delete"}
         </button>
       </div>
@@ -379,13 +377,10 @@ export default function Tasks() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ✅ KEY FIX — tasks fetched separately with fallback so employees/clients
-  // always load even if Firestore index is missing for orderBy
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        // ── Tasks: try ordered first, fallback to unordered ──────────
         let taskDocs = [];
         try {
           const taskSnap = await getDocs(
@@ -393,18 +388,11 @@ export default function Tasks() {
           );
           taskDocs = taskSnap.docs;
         } catch (indexErr) {
-          // The error message contains a direct link to create the index —
-          // click it in your browser console to fix ordering permanently
-          console.error(
-            "⚠️ Firestore index missing for tasks. Click the link above to create it.\n",
-            indexErr
-          );
-          // Fallback: fetch without ordering so tasks still appear
+          console.error("⚠️ Firestore index missing for tasks.\n", indexErr);
           const fallbackSnap = await getDocs(collection(db, "tasks"));
           taskDocs = fallbackSnap.docs;
         }
 
-        // ── Employees & Clients: always fetch regardless of task error ─
         const [empSnap, clientSnap] = await Promise.all([
           getDocs(collection(db, "employees")),
           getDocs(collection(db, "users")),
@@ -413,7 +401,6 @@ export default function Tasks() {
         setTasks(taskDocs.map(d => ({ id: d.id, ...d.data() })));
         setEmployees(empSnap.docs.map(d => ({ uid: d.id, ...d.data() })));
         setClients(clientSnap.docs.map(d => ({ uid: d.id, ...d.data() })));
-
       } catch (err) {
         console.error("Failed to load data:", err);
         showToast("Failed to load tasks", "error");
@@ -452,10 +439,7 @@ export default function Tasks() {
 
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      await updateDoc(doc(db, "tasks", taskId), {
-        status:    newStatus,
-        updatedAt: serverTimestamp(),
-      });
+      await updateDoc(doc(db, "tasks", taskId), { status: newStatus, updatedAt: serverTimestamp() });
       setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
     } catch (err) {
       console.error("Status update failed:", err);
@@ -497,33 +481,34 @@ export default function Tasks() {
   };
 
   const statCards = [
-    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-gray-50",    border: "border-gray-200",    iconColor: "text-gray-400",    valColor: "text-gray-900"    },
-    { label: "Pending",     val: counts.pending,    icon: Circle,        bg: "bg-gray-50",    border: "border-gray-200",    iconColor: "text-gray-400",    valColor: "text-gray-700"    },
-    { label: "In Progress", val: counts.inProgress, icon: Clock,         bg: "bg-amber-50",   border: "border-amber-100",   iconColor: "text-amber-600",   valColor: "text-amber-700"   },
-    { label: "Completed",   val: counts.completed,  icon: CheckCircle2,  bg: "bg-emerald-50", border: "border-emerald-100", iconColor: "text-emerald-600", valColor: "text-emerald-700" },
+    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-[#E6F1FB]",  border: "border-[#85B7EB]/40", iconColor: "text-[#153485]", valColor: "text-[#153485]"  },
+    { label: "Pending",     val: counts.pending,    icon: Circle,        bg: "bg-gray-50",    border: "border-gray-200",     iconColor: "text-gray-400",  valColor: "text-gray-700"   },
+    { label: "In Progress", val: counts.inProgress, icon: Clock,         bg: "bg-amber-50",   border: "border-amber-200",    iconColor: "text-amber-500", valColor: "text-amber-700"  },
+    { label: "Completed",   val: counts.completed,  icon: CheckCircle2,  bg: "bg-[#E1F5EE]",  border: "border-[#5DCAA5]/50", iconColor: "text-[#0F6E56]", valColor: "text-[#0F6E56]"  },
   ];
 
   return (
     <Layout title="Tasks">
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {statCards.map(s => (
-          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+          <div key={s.label}
+            className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:shadow-gray-100 transition-all duration-300 ease-out">
             <div className={`w-10 h-10 rounded-xl ${s.bg} ${s.border} border flex items-center justify-center flex-shrink-0`}>
               <s.icon size={18} className={s.iconColor} />
             </div>
             <div>
-              <p className={`text-2xl font-black ${s.valColor}`}>{s.val}</p>
+              <p className={`text-2xl font-bold ${s.valColor}`}>{s.val}</p>
               <p className="text-xs text-gray-400 font-medium">{s.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Overdue alert */}
+      {/* ── Overdue alert ── */}
       {counts.overdue > 0 && (
-        <div className="bg-red-50 border border-red-100 rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-3 shadow-sm">
+        <div className="bg-red-50 border border-red-100 rounded-2xl px-5 py-3.5 mb-5 flex items-center gap-3">
           <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
           <p className="text-sm text-red-700 font-semibold">
             {counts.overdue} task{counts.overdue > 1 ? "s are" : " is"} overdue
@@ -531,49 +516,58 @@ export default function Tasks() {
         </div>
       )}
 
-      {/* Toolbar */}
+      {/* ── Toolbar ── */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
+
+        {/* Search */}
         <div className="relative flex-1 min-w-[180px]">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input type="text" placeholder="Search tasks…" value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-800
-                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400
-                       focus:border-emerald-400 transition-all shadow-sm" />
+                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#153485]/20
+                       focus:border-[#153485] transition-all shadow-sm" />
         </div>
 
+        {/* Status filter */}
         <div className="relative">
           <Filter size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
-                       font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 appearance-none
-                       transition-all shadow-sm">
+                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#153485]/20
+                       focus:border-[#153485] appearance-none transition-all shadow-sm cursor-pointer
+                       hover:border-gray-300">
             <option value="all">All Status</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
 
+        {/* Priority filter */}
         <div className="relative">
           <Flag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
-                       font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 appearance-none
-                       transition-all shadow-sm">
+                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#153485]/20
+                       focus:border-[#153485] appearance-none transition-all shadow-sm cursor-pointer
+                       hover:border-gray-300">
             <option value="all">All Priority</option>
             {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
           <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
 
+        {/* New Task button */}
         <button onClick={() => setModal("add")}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5
-                     rounded-xl text-sm transition-all shadow-sm shadow-emerald-100 ml-auto">
+          className="flex items-center gap-2 bg-[#153485] text-white font-bold px-4 py-2.5 rounded-xl text-sm
+                     ml-auto cursor-pointer border border-white/10 shadow-md shadow-blue-900/20
+                     transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-[#1a3f9e]
+                     hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 active:shadow-sm">
           <Plus size={16} /> New Task
         </button>
       </div>
 
-      {/* Task Grid */}
+      {/* ── Task Grid ── */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
@@ -582,14 +576,14 @@ export default function Tasks() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-200 flex items-center justify-center mx-auto mb-4">
-            <ClipboardList size={24} className="text-gray-300" />
+          <div className="w-14 h-14 rounded-2xl bg-[#E6F1FB] border border-[#85B7EB]/40 flex items-center justify-center mx-auto mb-4">
+            <ClipboardList size={24} className="text-[#153485]" />
           </div>
-          <p className="text-sm font-bold text-gray-500">
+          <p className="text-sm font-bold text-gray-600">
             {tasks.length === 0 ? "No tasks yet" : "No matching tasks"}
           </p>
           <p className="text-xs text-gray-400 font-medium mt-1">
-            {tasks.length === 0 ? `Click "New Task" to create your first task` : "Try adjusting filters"}
+            {tasks.length === 0 ? `Click "New Task" to get started` : "Try adjusting your filters"}
           </p>
         </div>
       ) : (
@@ -603,7 +597,7 @@ export default function Tasks() {
         </div>
       )}
 
-      {/* Modals */}
+      {/* ── Modals ── */}
       {modal && (
         <TaskModal
           task={modal === "add" ? null : modal}

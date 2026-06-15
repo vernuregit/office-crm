@@ -10,10 +10,10 @@ import {
 
 const navItems = [
   { label: "Dashboard",      path: "/dashboard",      icon: LayoutDashboard },
-  { label: "Invoices",       path: "/invoices",       icon: Receipt         },
+  // { label: "Invoices",       path: "/invoices",       icon: Receipt         },
   { label: "Service Status", path: "/service-status", icon: ClipboardList   },
   { label: "Documents",      path: "/documents",      icon: FolderOpen      },
-  { label: "AI Assistant",   path: "/chatbot",        icon: Bot             },
+  // { label: "AI Assistant",   path: "/chatbot",        icon: Bot             },
   { label: "Support",        path: "/support",        icon: TicketCheck     },
 ];
 
@@ -32,11 +32,11 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center shadow-md">
             <Building2 size={18} className="text-white" />
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm tracking-tight">CA Firm</p>
+            <p className="font-bold text-gray-900 text-sm tracking-tight"></p>
             <p className="text-xs text-gray-900 font-medium">Client Portal</p>
           </div>
         </div>
@@ -45,7 +45,7 @@ const Sidebar = () => {
       {/* User Card */}
       <div className="mx-4 my-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-sm">
               {userData?.name?.charAt(0).toUpperCase() || "C"}
             </span>
@@ -71,8 +71,8 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                 ${isActive
-                  ? "bg-[#00A499] text-white shadow-md"
-                  : "text-gray-500  hover:text-[#00A499]"
+                  ? "bg-[#153485] text-white shadow-md"
+                  : "text-gray-500  hover:text-[#153485]"
                 }`
               }
             >

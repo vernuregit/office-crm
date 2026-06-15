@@ -27,8 +27,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
-        <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-        <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+        {/* <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} /> */}
+        {/* <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} /> */}
         <Route path="/leave" element={<ProtectedRoute><Leave /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/tickets" element={<ProtectedRoute><EmployeeTickets /></ProtectedRoute>} />

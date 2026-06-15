@@ -38,7 +38,7 @@ const NewTicketForm = ({ onSubmit, onCancel }) => {
     <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)] p-6 mb-6">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00A499] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center">
             <TicketCheck size={18} className="text-white" />
           </div>
           <div>
@@ -59,7 +59,7 @@ const NewTicketForm = ({ onSubmit, onCancel }) => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full border accent-[#00A499] border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A499] focus:border-[#00A499] transition-all bg-white appearance-none"
+              className="w-full border accent-[#153485] border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all bg-white appearance-none"
             >
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -74,7 +74,7 @@ const NewTicketForm = ({ onSubmit, onCancel }) => {
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Brief summary of your issue"
             required
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A499] focus:border-[#00A499] transition-all bg-white"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all bg-white"
           />
         </div>
 
@@ -86,7 +86,7 @@ const NewTicketForm = ({ onSubmit, onCancel }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your issue in detail..."
             required
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A499]focus:border-[#00A499] transition-all bg-white resize-none"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#153485]focus:border-[#153485] transition-all bg-white resize-none"
           />
         </div>
 
@@ -97,7 +97,7 @@ const NewTicketForm = ({ onSubmit, onCancel }) => {
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00A499] text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-md"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#153485] text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-md"
           >
             {submitting ? <><Loader2 size={14} className="animate-spin" /> Submitting...</> : <><Send size={14} /> Submit Ticket</>}
           </button>
@@ -129,7 +129,7 @@ const TicketDetail = ({ ticket, onClose, onReply }) => {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs 
-             text-[#00A499] border border-indigo-100 px-2.5 py-0.5 rounded-full font-semibold">
+             text-[#153485] border border-indigo-100 px-2.5 py-0.5 rounded-full font-semibold">
               {ticket.category}
             </span>
             <StatusBadge status={ticket.status} />
@@ -196,13 +196,13 @@ const TicketDetail = ({ ticket, onClose, onReply }) => {
             value={reply}
             onChange={(e) => setReply(e.target.value)}
             placeholder="Type your reply here..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00A499] focus:border-[#00A499] transition-all bg-white resize-none mb-3"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all bg-white resize-none mb-3"
           />
           <div className="flex justify-end">
             <button
               onClick={handleReply}
               disabled={!reply.trim() || submitting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00A499] text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-md"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#153485] text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-md"
             >
               {submitting ? <><Loader2 size={14} className="animate-spin" /> Sending...</> : <><Send size={14} /> Send Reply</>}
             </button>
@@ -327,8 +327,8 @@ const Support = () => {
               onClick={() => setFilter(tab)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold capitalize transition-all cursor-pointer
                 ${filter === tab
-                  ? "bg-[#00A499] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200  hover:text-[#00A499]"
+                  ? "bg-[#153485] text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200  hover:text-[#153485]"
                 }`}
             >
               {tab}
@@ -338,7 +338,7 @@ const Support = () => {
         {!showForm && !selectedTicket && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#00A499] cursor-pointer text-white rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2 bg-[#153485] cursor-pointer text-white rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md"
           >
             <Plus size={15} /> Raise Ticket
           </button>

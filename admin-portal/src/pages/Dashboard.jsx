@@ -241,7 +241,7 @@ export default function Dashboard() {
     <Layout  title="Dashboard">
 
       {/* ── Greeting Banner ─────────────────────────────────────── */}
-      <div className="bg-[#00A499] rounded-2xl px-6 py-5 mb-6 flex items-center justify-between shadow-lg shadow-blue-100">
+      <div className="bg-[#153485] rounded-2xl px-6 py-5 mb-6 flex items-center justify-between shadow-lg shadow-blue-100">
         <div>
           <p className="text-xs text-blue-100 font-bold uppercase tracking-wider mb-1">
             {new Date().toLocaleDateString("en-IN", {
@@ -284,7 +284,7 @@ export default function Dashboard() {
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-800 flex items-center gap-2">
-              <TrendingUp size={16} className="text-[#00A499]" />
+              <TrendingUp size={16} className="text-[#153485]" />
               Overview
             </h3>
             <span className="text-xs text-gray-400 font-medium">All time</span>
@@ -310,7 +310,7 @@ export default function Dashboard() {
                   allowDecimals={false}
                 />
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "#f0fdfb" }} />
-                <Bar dataKey="value" fill="#00A499" radius={[6, 6, 0, 0]} maxBarSize={48} />
+                <Bar dataKey="value" fill="#153485" radius={[6, 6, 0, 0]} maxBarSize={48} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -320,7 +320,7 @@ export default function Dashboard() {
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-800 flex items-center gap-2">
-              <ClipboardList size={16} className="text-[#00A499]" />
+              <ClipboardList size={16} className="text-[#153485]" />
               Task Status
             </h3>
             <span className="text-xs text-gray-400 font-medium">{pieTotal} total</span>
@@ -369,12 +369,12 @@ export default function Dashboard() {
         <div className="lg:col-span-2 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-800 flex items-center gap-2">
-              <ClipboardList size={16} className="text-[#00A499]" />
+              <ClipboardList size={16} className="text-[#153485]" />
               Recent Tasks
             </h3>
             <button
               onClick={() => navigate("/tasks")}
-              className="text-xs font-semibold text-[#00A499] cursor-pointer transition-colors flex items-center gap-1"
+              className="text-xs font-semibold text-[#153485] cursor-pointer transition-colors flex items-center gap-1"
             >
               View all <ArrowRight size={12} />
             </button>
@@ -399,7 +399,7 @@ export default function Dashboard() {
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-gray-800 flex items-center gap-2">
-              <CalendarClock size={16} className="text-[#00A499]" />
+              <CalendarClock size={16} className="text-[#153485]" />
               Leave Requests
             </h3>
             {stats.pendingLeave > 0 && (

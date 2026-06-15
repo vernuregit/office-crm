@@ -25,10 +25,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+        {/* <Route path="/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} /> */}
         <Route path="/service-status" element={<ProtectedRoute><ServiceStatus /></ProtectedRoute>} />
-        <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
-        <Route path="/chatbot" element={<ProtectedRoute><ChatBot /></ProtectedRoute>} />
+        {/* <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} /> */}
+        {/* <Route path="/chatbot" element={<ProtectedRoute><ChatBot /></ProtectedRoute>} /> */}
         <Route path="/support" element={<ProtectedRoute><Support />       </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

@@ -60,7 +60,7 @@ const DocRow = ({ doc }) => (
       href={doc.fileUrl}
       target="_blank"
       rel="noreferrer"
-      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600  hover:text-[#00A499] transition-all font-medium"
+      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600  hover:text-[#153485] transition-all font-medium"
     >
       <Download size={12} /> Download
     </a>
@@ -157,7 +157,7 @@ const Documents = () => {
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)] flex items-center gap-4">
             <div className={`w-12 h-12 rounded-2xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
-              <s.Icon size={22}  className='text-[#00A499]' />
+              <s.Icon size={22}  className='text-[#153485]' />
             </div>
             <div>
               <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -172,12 +172,12 @@ const Documents = () => {
         {...getRootProps()}
         className={`border-2 border-dashed rounded-2xl p-8 text-center mb-6 cursor-pointer transition-all
           ${isDragActive
-            ? "border-[#00A499] bg-[#00A499]"
-            : "border-gray-200 bg-white hover:border-[#00A499] hover:bg-indigo-50/30"
+            ? "border-[#153485] bg-[#153485]"
+            : "border-gray-200 bg-white hover:border-[#153485] hover:bg-indigo-50/30"
           }`}
       >
         <input {...getInputProps()} />
-        <Upload size={32} className={`mx-auto mb-3 ${isDragActive ? "text-[#00A499]" : "text-gray-300"}`} />
+        <Upload size={32} className={`mx-auto mb-3 ${isDragActive ? "text-[#153485]" : "text-gray-300"}`} />
         <p className="text-sm font-bold text-gray-700">
           {isDragActive ? "Drop the file here..." : "Drag & drop a file, or click to select"}
         </p>
@@ -226,8 +226,8 @@ const Documents = () => {
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all cursor-pointer
               ${activeTab === tab.key
-                ? "bg-[#00A499] text-white shadow-md"
-                : "bg-white text-gray-500 border border-gray-200  hover:text-[#00A499]"
+                ? "bg-[#153485] text-white shadow-md"
+                : "bg-white text-gray-500 border border-gray-200  hover:text-[#153485]"
               }`}
           >
             {tab.label}

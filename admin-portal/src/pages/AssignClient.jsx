@@ -35,7 +35,7 @@ const Avatar = ({ name, size = "md" }) => {
   return (
     <div
       className={`${sz} rounded-xl flex items-center justify-center text-white font-black flex-shrink-0 shadow-sm`}
-      style={{ backgroundColor: "#00A499" }}
+      style={{ backgroundColor: "#153485" }}
     >
       {initials}
     </div>
@@ -167,7 +167,7 @@ export default function AssignClient() {
       {/* ── Info Banner ── */}
       <div className="bg-blue-50 border border-blue-100 rounded-2xl px-5 py-4 mb-6 flex items-start gap-3">
         <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm"
-          style={{ backgroundColor: "#00A499" }}>
+          style={{ backgroundColor: "#153485" }}>
           <Link2 size={15} className="text-white" />
         </div>
         <div>
@@ -195,7 +195,7 @@ export default function AssignClient() {
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/60">
               <h2 className="text-sm font-black text-gray-800 flex items-center gap-2">
-                <Users size={16} style={{ color: "#00A499" }} />
+                <Users size={16} style={{ color: "#153485" }} />
                 Employees
                 <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                   {employees.length}
@@ -215,8 +215,8 @@ export default function AssignClient() {
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2
                              text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none
                              focus:ring-2 transition-all"
-                  style={{ "--tw-ring-color": "#00A499" }}
-                  onFocus={e  => e.target.style.borderColor = "#00A499"}
+                  style={{ "--tw-ring-color": "#153485" }}
+                  onFocus={e  => e.target.style.borderColor = "#153485"}
                   onBlur={e   => e.target.style.borderColor = ""}
                 />
               </div>
@@ -240,12 +240,12 @@ export default function AssignClient() {
                       className={`w-full flex items-center gap-3 px-5 py-3.5 border-b border-gray-50
                                   last:border-0 text-left transition-all
                         ${isSelected ? "bg-teal-50" : "hover:bg-gray-50"}`}
-                      style={isSelected ? { borderLeft: "3px solid #00A499" } : {}}
+                      style={isSelected ? { borderLeft: "3px solid #153485" } : {}}
                     >
                       <Avatar name={emp.name} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold truncate"
-                          style={{ color: isSelected ? "#00A499" : "#1f2937" }}>
+                          style={{ color: isSelected ? "#153485" : "#1f2937" }}>
                           {emp.name}
                         </p>
                         <p className="text-xs text-gray-400 truncate font-medium">
@@ -255,12 +255,12 @@ export default function AssignClient() {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {assignedCount > 0 && (
                           <span className="text-xs font-bold px-2 py-0.5 rounded-full border"
-                            style={{ backgroundColor: "#00A49915", borderColor: "#00A49930", color: "#00A499" }}>
+                            style={{ backgroundColor: "#15348515", borderColor: "#15348530", color: "#153485" }}>
                             {assignedCount}
                           </span>
                         )}
                         <ChevronRight size={14}
-                          style={{ color: isSelected ? "#00A499" : "#d1d5db" }} />
+                          style={{ color: isSelected ? "#153485" : "#d1d5db" }} />
                       </div>
                     </button>
                   );
@@ -275,11 +275,11 @@ export default function AssignClient() {
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/60">
               <h2 className="text-sm font-black text-gray-800 flex items-center gap-2">
-                <UserSquare2 size={16} style={{ color: "#00A499" }} />
+                <UserSquare2 size={16} style={{ color: "#153485" }} />
                 Clients
                 {selectedEmployee && (
                   <span className="text-xs font-bold px-2 py-0.5 rounded-full border"
-                    style={{ backgroundColor: "#00A49915", borderColor: "#00A49930", color: "#00A499" }}>
+                    style={{ backgroundColor: "#15348515", borderColor: "#15348530", color: "#153485" }}>
                     for {selectedEmployee.name.split(" ")[0]}
                   </span>
                 )}
@@ -303,7 +303,7 @@ export default function AssignClient() {
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2
                              text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none
                              focus:ring-2 transition-all"
-                  onFocus={e => e.target.style.borderColor = "#00A499"}
+                  onFocus={e => e.target.style.borderColor = "#153485"}
                   onBlur={e  => e.target.style.borderColor = ""}
                 />
               </div>
@@ -341,7 +341,7 @@ export default function AssignClient() {
                       <Avatar name={client.name} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold truncate"
-                          style={{ color: isAssigned ? "#00A499" : "#1f2937" }}>
+                          style={{ color: isAssigned ? "#153485" : "#1f2937" }}>
                           {client.name}
                         </p>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -372,12 +372,12 @@ export default function AssignClient() {
                             : ""
                           }`}
                         style={!isSaving && !isAssigned ? {
-                          backgroundColor: "#00A49912",
-                          borderColor:     "#00A49930",
-                          color:           "#00A499",
+                          backgroundColor: "#15348512",
+                          borderColor:     "#15348530",
+                          color:           "#153485",
                         } : {}}
-                        onMouseEnter={e => { if (!isSaving && !isAssigned) e.currentTarget.style.backgroundColor = "#00A49925"; }}
-                        onMouseLeave={e => { if (!isSaving && !isAssigned) e.currentTarget.style.backgroundColor = "#00A49912"; }}
+                        onMouseEnter={e => { if (!isSaving && !isAssigned) e.currentTarget.style.backgroundColor = "#15348525"; }}
+                        onMouseLeave={e => { if (!isSaving && !isAssigned) e.currentTarget.style.backgroundColor = "#15348512"; }}
                       >
                         {isSaving ? (
                           <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">

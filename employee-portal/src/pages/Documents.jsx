@@ -66,7 +66,7 @@ const DocRow = ({ doc, clientName }) => (
           </span>
           <span className="text-gray-200">•</span>
           <span className={`text-xs font-semibold ${
-            doc.uploadedByRole === "client" ? "text-indigo-500" : "text-[#00A499]"
+            doc.uploadedByRole === "client" ? "text-indigo-500" : "text-[#153485]"
           }`}>
             {doc.uploadedByRole === "client" ? "By Client" : "By CA Team"}
           </span>
@@ -75,7 +75,7 @@ const DocRow = ({ doc, clientName }) => (
     </div>
     <a href={doc.fileUrl} target="_blank" rel="noreferrer"
       className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-gray-200
-                 text-gray-600 hover:border-[#00A499] hover:text-[#00A499] transition-all font-medium flex-shrink-0 ml-3">
+                 text-gray-600 hover:border-[#153485] hover:text-[#153485] transition-all font-medium flex-shrink-0 ml-3">
       <Download size={12} /> Download
     </a>
   </div>
@@ -94,11 +94,11 @@ const UploadZone = ({ onUpload, uploading, progress }) => {
       <div {...getRootProps()}
         className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all
           ${isDragActive
-            ? "border-[#00A499] bg-teal-50"
-            : "border-gray-200 bg-white hover:border-[#00A499] hover:bg-teal-50/20"
+            ? "border-[#153485] bg-teal-50"
+            : "border-gray-200 bg-white hover:border-[#153485] hover:bg-teal-50/20"
           }`}>
         <input {...getInputProps()} />
-        <Upload size={28} className={`mx-auto mb-2 ${isDragActive ? "text-[#00A499]" : "text-gray-300"}`} />
+        <Upload size={28} className={`mx-auto mb-2 ${isDragActive ? "text-[#153485]" : "text-gray-300"}`} />
         <p className="text-sm font-bold text-gray-700">
           {isDragActive ? "Drop the file here..." : "Drag & drop, or click to upload for this client"}
         </p>
@@ -109,10 +109,10 @@ const UploadZone = ({ onUpload, uploading, progress }) => {
         <div className="bg-white rounded-2xl p-4 border border-gray-100 mt-3 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-gray-700">Uploading...</p>
-            <p className="text-sm font-black text-[#00A499]">{progress}%</p>
+            <p className="text-sm font-black text-[#153485]">{progress}%</p>
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
-            <div className="bg-[#00A499] h-2 rounded-full transition-all duration-300"
+            <div className="bg-[#153485] h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }} />
           </div>
         </div>
@@ -286,8 +286,8 @@ const Documents = () => {
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
                               transition-all border cursor-pointer
                     ${selectedClient === client.uid
-                      ? "bg-[#00A499] text-white border-[#00A499] shadow-md"
-                      : "bg-white text-gray-500 border-gray-200 hover:border-[#00A499] hover:text-[#00A499]"
+                      ? "bg-[#153485] text-white border-[#153485] shadow-md"
+                      : "bg-white text-gray-500 border-gray-200 hover:border-[#153485] hover:text-[#153485]"
                     }`}>
                   <User size={14} />
                   {client.name}
@@ -314,7 +314,7 @@ const Documents = () => {
                     className="bg-white rounded-2xl p-4 border border-gray-100
                                shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)] flex items-center gap-4">
                     <div className={`w-11 h-11 rounded-xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
-                      <FolderOpen size={20} className="text-[#00A499]" />
+                      <FolderOpen size={20} className="text-[#153485]" />
                     </div>
                     <div>
                       <p className="text-2xl font-black text-gray-800">{s.value}</p>
@@ -352,8 +352,8 @@ const Documents = () => {
                   <input type="text" placeholder="Search file name…" value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm
-                               focus:outline-none focus:ring-2 focus:ring-[#00A499]
-                               focus:border-[#00A499] transition-all bg-white" />
+                               focus:outline-none focus:ring-2 focus:ring-[#153485]
+                               focus:border-[#153485] transition-all bg-white" />
                 </div>
                 <div className="flex gap-2">
                   {[
@@ -364,8 +364,8 @@ const Documents = () => {
                     <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                       className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer
                         ${activeTab === tab.key
-                          ? "bg-[#00A499] text-white shadow-md"
-                          : "bg-white text-gray-500 border border-gray-200 hover:text-[#00A499]"
+                          ? "bg-[#153485] text-white shadow-md"
+                          : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
                         }`}>
                       {tab.label}
                     </button>
@@ -378,7 +378,7 @@ const Documents = () => {
                               shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)]">
                 {/* List Header */}
                 <div className="px-5 py-3.5 border-b border-gray-50 flex items-center gap-2">
-                  <User size={14} className="text-[#00A499]" />
+                  <User size={14} className="text-[#153485]" />
                   <p className="text-sm font-bold text-gray-700">
                     {selectedClientName}'s Documents
                   </p>
