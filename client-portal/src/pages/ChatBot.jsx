@@ -54,7 +54,7 @@ const ChatBot = () => {
       <div className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="bg-[#153485] rounded-2xl p-5 mb-4 text-white flex items-center gap-4 relative overflow-hidden">
+        <div className="bg-[#1D7872] rounded-2xl p-5 mb-4 text-white flex items-center gap-4 relative overflow-hidden">
           <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/5 rounded-full pointer-events-none" />
           <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center border border-white/20 flex-shrink-0">
             <Bot size={24} className="text-white" />
@@ -79,7 +79,7 @@ const ChatBot = () => {
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#153485] flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#1D7872] flex items-center justify-center mb-4">
                 <Bot size={30} className="text-white" />
               </div>
               <p className="text-gray-700 font-bold text-lg mb-1">How can I help you today?</p>
@@ -144,7 +144,7 @@ const ChatBot = () => {
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || thinking}
-            className="w-10 h-10 rounded-xl bg-[#153485] text-white flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 shadow-md"
+            className="w-10 h-10 rounded-xl bg-[#1D7872] text-white flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 shadow-md"
           >
             {thinking
               ? <Loader2 size={16} className="animate-spin" />

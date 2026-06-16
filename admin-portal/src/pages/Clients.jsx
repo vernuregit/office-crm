@@ -45,7 +45,7 @@ const Field = ({ label, icon: Icon, error, children }) => (
 const inputCls = (hasIcon = true, extra = "") =>
   `w-full bg-gray-50 border border-gray-200 rounded-xl ${hasIcon ? "pl-10" : "pl-4"} pr-4 py-2.5
    text-sm text-gray-800 placeholder:text-gray-400
-   focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border--[#153485]
+   focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border--[#1D7872]
    disabled:opacity-50 disabled:bg-gray-100 transition-all ${extra}`;
 
 // ─── Client Form Modal ────────────────────────────────────────────
@@ -86,8 +86,8 @@ const ClientModal = ({ client, onClose, onSave }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#153485] flex items-center justify-center">
-              <UserSquare2 size={16} className="text-[#153485]" />
+            <div className="w-9 h-9 rounded-xl bg-[#1D7872] flex items-center justify-center">
+              <UserSquare2 size={16} className="text-[#1D7872]" />
             </div>
             <h2 className="text-sm font-black text-gray-900">
               {isEdit ? "Edit Client" : "Add New Client"}
@@ -138,7 +138,7 @@ const ClientModal = ({ client, onClose, onSave }) => {
               rows={2}
               className={`w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5
                 text-sm text-gray-800 placeholder:text-gray-400
-                focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                 transition-all resize-none`}
             />
           </Field>
@@ -162,7 +162,7 @@ const ClientModal = ({ client, onClose, onSave }) => {
                 minLength={6}
                 className={`w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-11 py-2.5
                   text-sm text-gray-800 placeholder:text-gray-400
-                  focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all`}
+                  focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872] transition-all`}
               />
               <button
                 type="button"
@@ -192,7 +192,7 @@ const ClientModal = ({ client, onClose, onSave }) => {
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 bg-[#153485] cursor-pointer disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-indigo-200">
+              className="flex-1 bg-[#1D7872] cursor-pointer disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-indigo-200">
               {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Client"}
             </button>
           </div>
@@ -205,7 +205,7 @@ const ClientModal = ({ client, onClose, onSave }) => {
 // ─── Client Card ──────────────────────────────────────────────────
 const ClientCard = ({ client, onEdit, onDelete }) => {
   const initials = client.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const colors   = ["bg-[#153485]"];
+  const colors   = ["bg-[#1D7872]"];
   const color    = colors[client.name?.charCodeAt(0) % colors.length] || colors[0];
 
   return (
@@ -270,7 +270,7 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
 
       {/* Footer badge */}
       <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
-        <span className="text-xs font-bold text-[#153485] bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full">
+        <span className="text-xs font-bold text-[#1D7872] bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full">
           Client
         </span>
         {client.assignedToName && (
@@ -439,7 +439,7 @@ export default function Clients() {
         </div>
         <button
           onClick={() => setModal("add")}
-          className="flex items-center gap-2 bg-[#153485] text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-indigo-200"
+          className="flex items-center gap-2 bg-[#1D7872] text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-indigo-200"
         >
           <Plus size={16} />
           Add Client

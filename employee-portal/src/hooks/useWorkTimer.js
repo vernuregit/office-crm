@@ -1,137 +1,102 @@
-// useWorkTimer.js
 import { useState, useEffect, useRef } from "react";
 import {
   collection, doc, addDoc, updateDoc,
-  query, where, getDocs, orderBy, limit,
-  serverTimestamp
+  query, getDocs, orderBy, limit,
+  serverTimestamp, where
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import useAuthStore from "../store/authStore";
 
+const toMs = (val) => {
+  if (!val) return null;
+  if (typeof val === "number") return val;
+  if (val?.seconds) return val.seconds * 1000;
+  return null;
+};
+
 const useWorkTimer = () => {
   const { user } = useAuthStore();
-  const [activeSession,  setActiveSession]  = useState(null);
-  const [activeBreak,    setActiveBreak]    = useState(null); // ← new
+
+  const [activeSession, setActiveSession] = useState(null);
+  const [activeBreak, setActiveBreak] = useState(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [breakSeconds,   setBreakSeconds]   = useState(0);   // ← new
-  const [todayMinutes,   setTodayMinutes]   = useState(0);
-  const [weekMinutes,    setWeekMinutes]     = useState(0);
-  const [loading,        setLoading]        = useState(true);
-  const intervalRef      = useRef(null);
-  const breakIntervalRef = useRef(null);  // ← new
+  const [breakSeconds, setBreakSeconds] = useState(0);
+  const [todayMinutes, setTodayMinutes] = useState(0);
+  const [weekMinutes, setWeekMinutes] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // ── Load active session on mount ─────────────────────────────
-  useEffect(() => {
-    if (!user?.uid) return;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const sessionsRef = collection(db, "timeLogs", user.uid, "sessions");
+  const intervalRef = useRef(null);
 
-        // Find today's open session
-        const q = query(sessionsRef, orderBy("startTime", "desc"), limit(5));
-        const snap = await getDocs(q);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        let foundSession = null;
-        let foundBreak   = null;
-
-        snap.docs.forEach((d) => {
-          const data = { id: d.id, ...d.data() };
-          const startMs = data.startTime?.seconds
-            ? data.startTime.seconds * 1000
-            : data.startTime;
-          if (!data.endTime && startMs >= today.getTime() && !foundSession) {
-            foundSession = data;
-          }
-        });
-
-        if (foundSession) {
-          setActiveSession(foundSession);
-          const startMs = foundSession.startTime?.seconds
-            ? foundSession.startTime.seconds * 1000
-            : foundSession.startTime;
-          const elapsed = Math.floor((Date.now() - startMs) / 1000);
-          setElapsedSeconds(Math.max(0, elapsed));
-
-          // Check for active break inside this session
-          const breaksRef = collection(
-            db, "timeLogs", user.uid, "sessions", foundSession.id, "breaks"
-          );
-          const bSnap = await getDocs(
-            query(breaksRef, orderBy("startTime", "desc"), limit(1))
-          );
-          if (!bSnap.empty) {
-            const bData = { id: bSnap.docs[0].id, ...bSnap.docs[0].data() };
-            if (!bData.endTime) {
-              foundBreak = bData;
-              setActiveBreak(bData);
-              const bStartMs = bData.startTime?.seconds
-                ? bData.startTime.seconds * 1000
-                : bData.startTime;
-              setBreakSeconds(Math.floor((Date.now() - bStartMs) / 1000));
-            }
-          }
-        }
-
-        // Today + week totals
-        await loadTotals(sessionsRef);
-      } catch (err) {
-        console.error("useWorkTimer load error:", err);
-      }
-      setLoading(false);
-    };
-    load();
-  }, [user?.uid]);
-
-  // ── Work timer tick ──────────────────────────────────────────
-  useEffect(() => {
-    if (activeSession) {
-      intervalRef.current = setInterval(() => {
-        setElapsedSeconds((s) => s + 1);
-      }, 1000);
-    } else {
+  const stopTicker = () => {
+    if (intervalRef.current) {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
-    return () => clearInterval(intervalRef.current);
-  }, [activeSession]);
+  };
 
-  // ── Break timer tick ─────────────────────────────────────────
-  useEffect(() => {
-    if (activeBreak) {
-      breakIntervalRef.current = setInterval(() => {
-        setBreakSeconds((s) => s + 1);
-      }, 1000);
-    } else {
-      clearInterval(breakIntervalRef.current);
-      setBreakSeconds(0);
+  const computeLiveTimes = (session, liveBreak = null) => {
+    if (!session?.startTime) return { workSecs: 0, breakSecs: 0 };
+
+    const now = Date.now();
+    const startMs = toMs(session.startTime);
+    const totalBreakBefore = Number(session.totalBreakSeconds || 0);
+    if (!startMs) return { workSecs: 0, breakSecs: 0 };
+
+    let currentBreakSecs = 0;
+    if (liveBreak?.startTime) {
+      const breakStartMs = toMs(liveBreak.startTime);
+      if (breakStartMs) {
+        currentBreakSecs = Math.max(0, Math.floor((now - breakStartMs) / 1000));
+      }
     }
-    return () => clearInterval(breakIntervalRef.current);
-  }, [activeBreak]);
 
-  // ── Load totals ───────────────────────────────────────────────
+    const totalSessionSecs = Math.max(0, Math.floor((now - startMs) / 1000));
+    const workSecs = Math.max(0, totalSessionSecs - totalBreakBefore - currentBreakSecs);
+
+    return { workSecs, breakSecs: currentBreakSecs };
+  };
+
+  const startTicker = (session, liveBreak = null) => {
+    stopTicker();
+
+    const update = () => {
+      const { workSecs, breakSecs } = computeLiveTimes(session, liveBreak || activeBreak);
+      setElapsedSeconds(workSecs);
+      setBreakSeconds(breakSecs);
+    };
+
+    update();
+    intervalRef.current = setInterval(update, 1000);
+  };
+
   const loadTotals = async (sessionsRef) => {
     try {
-      const now   = new Date();
-      const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-      const weekStart  = new Date(now); weekStart.setDate(now.getDate() - now.getDay());
+      const now = new Date();
+
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
+
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
       weekStart.setHours(0, 0, 0, 0);
 
       const snap = await getDocs(query(sessionsRef, orderBy("startTime", "desc")));
-      let todayMins = 0, weekMins = 0;
+      let todayMins = 0;
+      let weekMins = 0;
 
       snap.docs.forEach((d) => {
         const s = d.data();
-        const startMs = s.startTime?.seconds ? s.startTime.seconds * 1000 : s.startTime;
-        const endMs   = s.endTime?.seconds   ? s.endTime.seconds   * 1000 : s.endTime;
+        const startMs = toMs(s.startTime);
+        const endMs = toMs(s.endTime);
         if (!startMs || !endMs) return;
 
-        const durMins = (endMs - startMs) / 60000;
+        const totalBreakSecs = Number(s.totalBreakSeconds || 0);
+        const durMins = (endMs - startMs - totalBreakSecs * 1000) / 60000;
+
         if (durMins <= 0 || durMins > 1440) return;
 
         if (startMs >= todayStart.getTime()) todayMins += durMins;
-        if (startMs >= weekStart.getTime())  weekMins  += durMins;
+        if (startMs >= weekStart.getTime()) weekMins += durMins;
       });
 
       setTodayMinutes(Math.round(todayMins));
@@ -141,83 +106,241 @@ const useWorkTimer = () => {
     }
   };
 
-  // ── Clock In ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const sessionsRef = collection(db, "timeLogs", user.uid, "sessions");
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStartMs = today.getTime();
+
+        const openSnap = await getDocs(
+          query(
+            sessionsRef,
+            where("endTime", "==", null),
+            orderBy("startTime", "desc")
+          )
+        );
+
+        let foundSession = null;
+        let foundBreak = null;
+
+        const openSessions = openSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+        foundSession =
+          openSessions.find((s) => {
+            const startMs = toMs(s.startTime);
+            return startMs && startMs >= todayStartMs;
+          }) || null;
+
+        if (foundSession) {
+          const breaksRef = collection(
+            db,
+            "timeLogs",
+            user.uid,
+            "sessions",
+            foundSession.id,
+            "breaks"
+          );
+
+          const bSnap = await getDocs(
+            query(breaksRef, orderBy("startTime", "desc"), limit(1))
+          );
+
+          if (!bSnap.empty) {
+            const bData = { id: bSnap.docs[0].id, ...bSnap.docs[0].data() };
+            if (!bData.endTime) foundBreak = bData;
+          }
+        }
+
+        setActiveSession(foundSession);
+        setActiveBreak(foundBreak);
+
+        if (foundSession) {
+          const { workSecs, breakSecs } = computeLiveTimes(foundSession, foundBreak);
+          setElapsedSeconds(workSecs);
+          setBreakSeconds(breakSecs);
+          startTicker(foundSession, foundBreak);
+        } else {
+          stopTicker();
+          setElapsedSeconds(0);
+          setBreakSeconds(0);
+        }
+
+        await loadTotals(sessionsRef);
+      } catch (err) {
+        console.error("useWorkTimer load error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+    return () => stopTicker();
+  }, [user?.uid]);
+
   const clockIn = async () => {
     if (!user?.uid || activeSession) return;
+
     try {
       const now = Date.now();
       const sessionsRef = collection(db, "timeLogs", user.uid, "sessions");
+
       const docRef = await addDoc(sessionsRef, {
         startTime: now,
-        endTime:   null,
-        breaks:    [],
+        endTime: null,
+        breakStartTime: null,
+        totalBreakSeconds: 0,
         createdAt: serverTimestamp(),
       });
-      const newSession = { id: docRef.id, startTime: now, endTime: null };
+
+      const newSession = {
+        id: docRef.id,
+        startTime: now,
+        endTime: null,
+        breakStartTime: null,
+        totalBreakSeconds: 0,
+      };
+
       setActiveSession(newSession);
+      setActiveBreak(null);
       setElapsedSeconds(0);
+      setBreakSeconds(0);
+      startTicker(newSession, null);
     } catch (err) {
       console.error("clockIn error:", err);
     }
   };
 
-  // ── Clock Out ─────────────────────────────────────────────────
-  const clockOut = async () => {
-    if (!user?.uid || !activeSession) return;
-    try {
-      // End any active break first
-      if (activeBreak) await endBreak(true);
-
-      const now = Date.now();
-      const sessionRef = doc(db, "timeLogs", user.uid, "sessions", activeSession.id);
-      await updateDoc(sessionRef, { endTime: now });
-
-      const durMins = Math.round(elapsedSeconds / 60);
-      setTodayMinutes((p) => p + durMins);
-      setWeekMinutes((p)  => p + durMins);
-      setActiveSession(null);
-      setElapsedSeconds(0);
-    } catch (err) {
-      console.error("clockOut error:", err);
-    }
-  };
-
-  // ── Start Break ───────────────────────────────────────────────
   const startBreak = async () => {
     if (!user?.uid || !activeSession || activeBreak) return;
+
     try {
       const now = Date.now();
+
       const breaksRef = collection(
         db, "timeLogs", user.uid, "sessions", activeSession.id, "breaks"
       );
+
       const docRef = await addDoc(breaksRef, {
         startTime: now,
-        endTime:   null,
+        endTime: null,
         createdAt: serverTimestamp(),
       });
-      setActiveBreak({ id: docRef.id, startTime: now, endTime: null });
+
+      const breakObj = { id: docRef.id, startTime: now, endTime: null };
+
+      await updateDoc(
+        doc(db, "timeLogs", user.uid, "sessions", activeSession.id),
+        { breakStartTime: now }
+      );
+
+      setActiveBreak(breakObj);
+      startTicker(activeSession, breakObj);
     } catch (err) {
       console.error("startBreak error:", err);
     }
   };
 
-  // ── End Break ─────────────────────────────────────────────────
   const endBreak = async (silent = false) => {
-    if (!user?.uid || !activeSession || !activeBreak) return;
+    if (!user?.uid || !activeSession || !activeBreak) return 0;
+
     try {
       const now = Date.now();
+      const breakStartMs = toMs(activeBreak.startTime);
+      const breakDurationSecs = breakStartMs
+        ? Math.max(0, Math.floor((now - breakStartMs) / 1000))
+        : 0;
+
       const breakRef = doc(
-        db, "timeLogs", user.uid, "sessions", activeSession.id, "breaks", activeBreak.id
+        db,
+        "timeLogs",
+        user.uid,
+        "sessions",
+        activeSession.id,
+        "breaks",
+        activeBreak.id
       );
+
+      const sessionRef = doc(db, "timeLogs", user.uid, "sessions", activeSession.id);
+
+      const updatedSession = {
+        ...activeSession,
+        breakStartTime: null,
+        totalBreakSeconds: Number(activeSession.totalBreakSeconds || 0) + breakDurationSecs,
+      };
+
       await updateDoc(breakRef, { endTime: now });
-      if (!silent) setActiveBreak(null);
+      await updateDoc(sessionRef, {
+        breakStartTime: null,
+        totalBreakSeconds: updatedSession.totalBreakSeconds,
+      });
+
+      if (!silent) {
+        setActiveSession(updatedSession);
+        setActiveBreak(null);
+        setBreakSeconds(0);
+        startTicker(updatedSession, null);
+      }
+
+      return breakDurationSecs;
     } catch (err) {
       console.error("endBreak error:", err);
+      return 0;
     }
-    if (!silent) setActiveBreak(null);
   };
 
-  // ── Helpers ───────────────────────────────────────────────────
+  const clockOut = async () => {
+    if (!user?.uid || !activeSession) return;
+
+    try {
+      let updatedSession = activeSession;
+
+      if (activeBreak) {
+        const breakSecs = await endBreak(true);
+        updatedSession = {
+          ...activeSession,
+          breakStartTime: null,
+          totalBreakSeconds: Number(activeSession.totalBreakSeconds || 0) + breakSecs,
+        };
+      }
+
+      const now = Date.now();
+      const sessionRef = doc(db, "timeLogs", user.uid, "sessions", updatedSession.id);
+
+      await updateDoc(sessionRef, {
+        endTime: now,
+        breakStartTime: null,
+        totalBreakSeconds: Number(updatedSession.totalBreakSeconds || 0),
+      });
+
+      const startMs = toMs(updatedSession.startTime);
+      const finalWorkedSecs = startMs
+        ? Math.max(
+            0,
+            Math.floor((now - startMs) / 1000) - Number(updatedSession.totalBreakSeconds || 0)
+          )
+        : 0;
+
+      const durMins = Math.round(finalWorkedSecs / 60);
+
+      setTodayMinutes((p) => p + durMins);
+      setWeekMinutes((p) => p + durMins);
+
+      setActiveSession(null);
+      setActiveBreak(null);
+      setElapsedSeconds(0);
+      setBreakSeconds(0);
+      stopTicker();
+    } catch (err) {
+      console.error("clockOut error:", err);
+    }
+  };
+
   const formatTime = (secs) => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
@@ -232,16 +355,16 @@ const useWorkTimer = () => {
 
   return {
     activeSession,
-    activeBreak,       // ← new
+    activeBreak,
     elapsedSeconds,
-    breakSeconds,      // ← new
+    breakSeconds,
     todayMinutes,
     weekMinutes,
     loading,
     clockIn,
     clockOut,
-    startBreak,        // ← new
-    endBreak,          // ← new
+    startBreak,
+    endBreak,
     formatTime,
     formatMinutes,
   };

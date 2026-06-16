@@ -147,7 +147,7 @@ const Login = () => {
                   onChange={(e) => { setEmail(e.target.value); setError(""); setResetSent(false); }}
                   required placeholder="you@cafirm.com"
                   className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm
-                             focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                             focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                              transition-all bg-gray-50 focus:bg-white" />
               </div>
             </div>
@@ -161,7 +161,7 @@ const Login = () => {
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   required placeholder="••••••••"
                   className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm
-                             focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                             focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                              transition-all bg-gray-50 focus:bg-white" />
               </div>
             </div>
@@ -171,7 +171,7 @@ const Login = () => {
               <button type="button"
                 onClick={handleForgotPassword}
                 disabled={resetLoading}
-                className="flex items-center gap-1.5 text-sm text-[#153485] font-semibold
+                className="flex items-center gap-1.5 text-sm text-[#1D7872] font-semibold
                            hover:underline transition-colors disabled:opacity-50 cursor-pointer">
                 {resetLoading
                   ? <><Loader2 size={13} className="animate-spin" /> Sending...</>
@@ -182,7 +182,7 @@ const Login = () => {
 
             {/* Submit */}
             <button type="submit" disabled={loading}
-              className="w-full bg-[#153485] text-white font-bold py-3 rounded-xl
+              className="w-full bg-[#1D7872] text-white font-bold py-3 rounded-xl
                          hover:opacity-90 transition-all shadow-lg hover:shadow-xl
                          disabled:opacity-50 disabled:cursor-not-allowed text-sm
                          flex items-center justify-center gap-2">

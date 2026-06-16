@@ -81,7 +81,7 @@ const TaskCard = ({ task }) => {
       {/* Assigned Employee */}
       {task.assignedToName && (
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-[#153485] flex items-center justify-center flex-shrink-0">
+          <div className="w-6 h-6 rounded-full bg-[#1D7872] flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">
               {task.assignedToName.charAt(0).toUpperCase()}
             </span>
@@ -183,7 +183,7 @@ const ServiceStatus = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                       focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                        transition-all bg-white"
           />
         </div>
@@ -192,8 +192,8 @@ const ServiceStatus = () => {
             <button key={p} onClick={() => setFilterPriority(p)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-all cursor-pointer
                 ${filterPriority === p
-                  ? "bg-[#153485] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
+                  ? "bg-[#1D7872] text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#1D7872]"
                 }`}>
               {p}
             </button>

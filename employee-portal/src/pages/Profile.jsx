@@ -23,7 +23,7 @@ import {
 const SectionCard = ({ title, description, icon: Icon, children }) => (
   <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)] overflow-hidden">
     <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-50 bg-gray-50/50">
-      <div className="w-9 h-9 rounded-xl bg-[#153485] flex items-center justify-center flex-shrink-0">
+      <div className="w-9 h-9 rounded-xl bg-[#1D7872] flex items-center justify-center flex-shrink-0">
         <Icon size={16} className="text-white" />
       </div>
       <div>
@@ -52,7 +52,7 @@ const InputField = ({ label, icon: Icon, type = "text", value, onChange, placeho
           ${rightElement ? "pr-11" : "pr-4"}
           ${disabled
             ? "bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed"
-            : "border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]"
+            : "border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]"
           }`}
       />
       {rightElement && (
@@ -226,7 +226,7 @@ const Profile = () => {
             {/* <button
               onClick={() => fileInputRef.current?.click()}
               disabled={avatarLoading}
-              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-white text-[#153485] cursor-pointer flex items-center justify-center shadow-lg  transition-colors border "
+              className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-white text-[#1D7872] cursor-pointer flex items-center justify-center shadow-lg  transition-colors border "
             >
               {avatarLoading
                 ? <Loader2 size={13} className="animate-spin" />
@@ -324,7 +324,7 @@ const Profile = () => {
               <button
                 type="submit"
                 disabled={infoLoading}
-                className="w-full flex items-center justify-center gap-2 bg-[#153485] text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-[#1D7872] text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 text-sm"
               >
                 {infoLoading
                   ? <><Loader2 size={15} className="animate-spin" /> Saving...</>
@@ -349,7 +349,7 @@ const Profile = () => {
               ].map(({ label, value, Icon }) => (
                 <div key={label} className="flex items-center gap-3 p-3.5 rounded-xl bg-gray-50 border border-gray-100">
                   <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                    <Icon size={14} className="text-[#153485]" />
+                    <Icon size={14} className="text-[#1D7872]" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-medium">{label}</p>
@@ -477,7 +477,7 @@ const Profile = () => {
               <button
                 type="submit"
                 disabled={pwdLoading || !currentPwd || !newPwd || !confirmPwd}
-                className="w-full flex items-center justify-center bg-[#153485] cursor-pointer gap-2 bg- text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 text-sm"
+                className="w-full flex items-center justify-center bg-[#1D7872] cursor-pointer gap-2 bg- text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all shadow-md disabled:opacity-50 text-sm"
               >
                 {pwdLoading
                   ? <><Loader2 size={15} className="animate-spin" /> Updating...</>
@@ -506,7 +506,7 @@ const Profile = () => {
                   label: "Role",
                   value: "Employee",
                   Icon: User,
-                  valueColor: "text-[#153485]",
+                  valueColor: "text-[#1D7872]",
                 },
                 {
                   label: "Last Sign In",
@@ -532,7 +532,7 @@ const Profile = () => {
               ].map(({ label, value, Icon, valueColor, valueStyle }) => (
                 <div key={label} className="flex items-center gap-3 p-3.5 rounded-xl bg-gray-50 border border-gray-100">
                   <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                    <Icon size={14} className="text-[#153485]" />
+                    <Icon size={14} className="text-[#1D7872]" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-medium">{label}</p>

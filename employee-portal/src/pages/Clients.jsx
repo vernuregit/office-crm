@@ -19,7 +19,7 @@ const ClientModal = ({ client, taskCount, onClose }) => (
     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg">
 
       {/* Header */}
-      <div className="bg-[#153485] rounded-t-3xl p-6 text-white relative overflow-hidden">
+      <div className="bg-[#1D7872] rounded-t-3xl p-6 text-white relative overflow-hidden">
         <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/5 rounded-full pointer-events-none" />
         <div className="flex items-start justify-between relative">
           <div className="flex items-center gap-4">
@@ -64,7 +64,7 @@ const ClientModal = ({ client, taskCount, onClose }) => (
             ].map(({ Icon, label, value }) => value ? (
               <div key={label} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Icon size={14} className="text-[#153485]" />
+                  <Icon size={14} className="text-[#1D7872]" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-medium">{label}</p>
@@ -94,7 +94,7 @@ const ClientModal = ({ client, taskCount, onClose }) => (
             ].map(({ Icon, label, value }) => (
               <div key={label} className="p-3 rounded-xl bg-gray-50 border border-gray-100">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} className="text-[#153485]" />
+                  <Icon size={13} className="text-[#1D7872]" />
                   <p className="text-xs text-gray-400 font-medium">{label}</p>
                 </div>
                 <p className="text-sm font-bold text-gray-800">{value || "—"}</p>
@@ -127,7 +127,7 @@ const ClientCard = ({ client, taskCount, onClick }) => (
   >
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-[#153485] flex items-center justify-center shadow-md flex-shrink-0">
+        <div className="w-12 h-12 rounded-2xl bg-[#1D7872] flex items-center justify-center shadow-md flex-shrink-0">
           <span className="text-white font-black text-lg">
             {client.name?.charAt(0).toUpperCase() || "C"}
           </span>
@@ -161,7 +161,7 @@ const ClientCard = ({ client, taskCount, onClick }) => (
 
     <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
       <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
-        <ClipboardList size={12} className="text-[#153485]" />
+        <ClipboardList size={12} className="text-[#1D7872]" />
         <span>{taskCount} active task{taskCount !== 1 ? "s" : ""}</span>
       </div>
       <span className="w-2 h-2 bg-emerald-400 rounded-full" title="Active" />
@@ -249,7 +249,7 @@ const Clients = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-2.5 text-sm
-                       focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                       focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                        transition-all bg-white"
           />
         </div>

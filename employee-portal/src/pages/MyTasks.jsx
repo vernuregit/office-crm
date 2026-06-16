@@ -658,7 +658,7 @@ const MyTasks = () => {
         {/* Create Task Button */}
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#153485] cursor-pointer text-white
+          className="flex items-center gap-2 px-4 py-2 bg-[#1D7872] cursor-pointer text-white
                        rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md"
         >
           <Plus size={16} />

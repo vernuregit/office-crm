@@ -109,7 +109,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-3xl
                         flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#153485] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#1D7872] flex items-center justify-center">
               <CalendarOff size={16} className="text-white" />
             </div>
             <div>
@@ -136,7 +136,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
               <Tag size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-[#153485]/30 focus:border-[#153485]
+                           focus:outline-none focus:ring-2 focus:ring-[#1D7872]/30 focus:border-[#1D7872]
                            transition-all bg-white appearance-none cursor-pointer">
                 {LEAVE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
@@ -152,11 +152,11 @@ const LeaveModal = ({ onClose, onSubmit }) => {
               className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl border
                           text-sm font-medium transition-all cursor-pointer
                           ${hasDate
-                            ? "border-[#153485] bg-blue-50 text-[#153485]"
-                            : "border-gray-200 bg-white text-gray-400 hover:border-[#153485] hover:bg-blue-50/20"
+                            ? "border-[#1D7872] bg-blue-50 text-[#1D7872]"
+                            : "border-gray-200 bg-white text-gray-400 hover:border-[#1D7872] hover:bg-blue-50/20"
                           }`}>
               <div className="flex items-center gap-2.5">
-                <Calendar size={15} className={hasDate ? "text-[#153485]" : "text-gray-400"} />
+                <Calendar size={15} className={hasDate ? "text-[#1D7872]" : "text-gray-400"} />
                 <span className={hasDate ? "font-bold" : ""}>
                   {displayLabel() || "Click to pick date(s)"}
                 </span>
@@ -180,12 +180,12 @@ const LeaveModal = ({ onClose, onSubmit }) => {
                       Start Date <span className="text-red-400">*</span>
                     </label>
                     <div className="relative">
-                      <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#153485] pointer-events-none" />
+                      <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1D7872] pointer-events-none" />
                       <input type="date" value={fromDate} min={today}
                         onChange={(e) => handleFromChange(e.target.value)}
                         className="w-full border-2 border-gray-200 rounded-xl pl-9 pr-4 py-2.5
                                    text-sm font-semibold text-gray-800 focus:outline-none
-                                   focus:border-[#153485] focus:ring-2 focus:ring-[#153485]/20
+                                   focus:border-[#1D7872] focus:ring-2 focus:ring-[#1D7872]/20
                                    transition-all bg-white cursor-pointer" />
                     </div>
                   </div>
@@ -203,13 +203,13 @@ const LeaveModal = ({ onClose, onSubmit }) => {
                       <span className="ml-1.5 text-gray-400 font-normal normal-case">(optional, 1 day if blank)</span>
                     </label>
                     <div className="relative">
-                      <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#153485] pointer-events-none" />
+                      <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1D7872] pointer-events-none" />
                       <input type="date" value={toDate} min={fromDate || today}
                         onChange={(e) => setToDate(e.target.value)}
                         disabled={!fromDate}
                         className="w-full border-2 border-gray-200 rounded-xl pl-9 pr-4 py-2.5
                                    text-sm font-semibold text-gray-800 focus:outline-none
-                                   focus:border-[#153485] focus:ring-2 focus:ring-[#153485]/20
+                                   focus:border-[#1D7872] focus:ring-2 focus:ring-[#1D7872]/20
                                    transition-all bg-white cursor-pointer
                                    disabled:opacity-40 disabled:cursor-not-allowed" />
                     </div>
@@ -217,8 +217,8 @@ const LeaveModal = ({ onClose, onSubmit }) => {
 
                   {fromDate && (
                     <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5 flex items-center gap-2">
-                      <Clock size={12} className="text-[#153485]" />
-                      <p className="text-sm font-black text-[#153485]">
+                      <Clock size={12} className="text-[#1D7872]" />
+                      <p className="text-sm font-black text-[#1D7872]">
                         {finalDays === 1
                           ? `1 day — ${fmt(fromDate)}`
                           : `${finalDays} days — ${fmt(fromDate)} to ${fmt(toDate)}`}
@@ -229,7 +229,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
 
                 <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
                   <button type="button" onClick={handleConfirm} disabled={!fromDate}
-                    className="flex-1 bg-[#153485] text-white text-sm font-bold py-2.5 rounded-xl
+                    className="flex-1 bg-[#1D7872] text-white text-sm font-bold py-2.5 rounded-xl
                                hover:opacity-90 transition-all cursor-pointer
                                disabled:opacity-40 disabled:cursor-not-allowed">
                     ✓ Confirm{fromDate ? ` — ${finalDays} Day${finalDays !== 1 ? "s" : ""}` : ""}
@@ -249,14 +249,14 @@ const LeaveModal = ({ onClose, onSubmit }) => {
           {/* Selected date summary pill */}
           {hasDate && !showPicker && (
             <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5">
-              <Clock size={13} className="text-[#153485] flex-shrink-0" />
-              <p className="text-sm font-bold text-[#153485]">
+              <Clock size={13} className="text-[#1D7872] flex-shrink-0" />
+              <p className="text-sm font-bold text-[#1D7872]">
                 {finalDays === 1
                   ? `1 day leave — ${fmt(fromDate)}`
                   : `${finalDays} days leave — ${fmt(fromDate)} to ${fmt(toDate)}`}
               </p>
               <button type="button" onClick={() => setShowPicker(true)}
-                className="ml-auto text-xs text-[#153485] underline font-semibold cursor-pointer">
+                className="ml-auto text-xs text-[#1D7872] underline font-semibold cursor-pointer">
                 Change
               </button>
             </div>
@@ -273,7 +273,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
                 placeholder="Briefly describe the reason for your leave..."
                 required
                 className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm
-                           focus:outline-none focus:ring-2 focus:ring-[#153485]/30 focus:border-[#153485]
+                           focus:outline-none focus:ring-2 focus:ring-[#1D7872]/30 focus:border-[#1D7872]
                            transition-all bg-white resize-none" />
             </div>
           </div>
@@ -287,7 +287,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
             </button>
             <button type="submit" disabled={submitting || !hasDate || !reason.trim()}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
-                         bg-[#153485] text-white text-sm font-bold hover:opacity-90
+                         bg-[#1D7872] text-white text-sm font-bold hover:opacity-90
                          transition-all disabled:opacity-50 shadow-md cursor-pointer">
               {submitting
                 ? <><Loader2 size={14} className="animate-spin" /> Submitting…</>
@@ -427,7 +427,7 @@ const Leave = () => {
           { label: "Total Requests", value: stats.total,     color: "text-gray-700"    },
           { label: "Pending",        value: stats.pending,   color: "text-amber-600"   },
           { label: "Approved",       value: stats.approved,  color: "text-emerald-600" },
-          { label: "Days Taken",     value: stats.totalDays, color: "text-[#153485]"   },
+          { label: "Days Taken",     value: stats.totalDays, color: "text-[#1D7872]"   },
         ].map((s) => (
           <div key={s.label}
             className="bg-white rounded-xl p-4 border border-gray-100 shadow-[0_2px_15px_-3px_rgba(79,70,229,0.07)]">
@@ -462,8 +462,8 @@ const Leave = () => {
             <button key={tab} onClick={() => setFilter(tab)}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all cursor-pointer
                 ${filter === tab
-                  ? "bg-[#153485] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#153485]"
+                  ? "bg-[#1D7872] text-white shadow-md"
+                  : "bg-white text-gray-500 border border-gray-200 hover:text-[#1D7872]"
                 }`}>
               {tab}
               {tab !== "all" && stats[tab] > 0 && (
@@ -478,7 +478,7 @@ const Leave = () => {
 
         {/* ← Always visible; opens modal */}
         <button onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#153485] cursor-pointer text-white
+          className="flex items-center gap-2 px-4 py-2 bg-[#1D7872] cursor-pointer text-white
                      rounded-xl text-sm font-bold hover:opacity-90 transition-all shadow-md">
           <Plus size={15} /> Apply Leave
         </button>
@@ -499,7 +499,7 @@ const Leave = () => {
           </p>
           {leaves.length === 0 && (
             <button onClick={() => setShowModal(true)}
-              className="mt-3 text-[#153485] text-sm font-semibold hover:underline cursor-pointer">
+              className="mt-3 text-[#1D7872] text-sm font-semibold hover:underline cursor-pointer">
               Apply for your first leave →
             </button>
           )}

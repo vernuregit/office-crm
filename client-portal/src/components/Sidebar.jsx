@@ -32,7 +32,7 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-[#1D7872] flex items-center justify-center shadow-md">
             <Building2 size={18} className="text-white" />
           </div>
           <div>
@@ -45,7 +45,7 @@ const Sidebar = () => {
       {/* User Card */}
       <div className="mx-4 my-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#153485] flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-[#1D7872] flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-sm">
               {userData?.name?.charAt(0).toUpperCase() || "C"}
             </span>
@@ -71,8 +71,8 @@ const Sidebar = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                 ${isActive
-                  ? "bg-[#153485] text-white shadow-md"
-                  : "text-gray-500  hover:text-[#153485]"
+                  ? "bg-[#1D7872] text-white shadow-md"
+                  : "text-gray-500  hover:text-[#1D7872]"
                 }`
               }
             >

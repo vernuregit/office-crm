@@ -22,7 +22,7 @@ const STATUSES = [
 
 const PRIORITIES = [
   { value: "low",    label: "Low",    color: "text-[#0F6E56]",  bg: "bg-[#E1F5EE] border-[#5DCAA5]"  },
-  { value: "medium", label: "Medium", color: "text-[#153485]",  bg: "bg-[#E6F1FB] border-[#85B7EB]"  },
+  { value: "medium", label: "Medium", color: "text-[#1D7872]",  bg: "bg-[#E6F1FB] border-[#85B7EB]"  },
   { value: "high",   label: "High",   color: "text-amber-700",  bg: "bg-amber-50  border-amber-200"  },
   { value: "urgent", label: "Urgent", color: "text-red-600",    bg: "bg-red-50    border-red-200"    },
 ];
@@ -33,7 +33,7 @@ const priorityMeta = (v) => PRIORITIES.find(p => p.value === v) || PRIORITIES[0]
 // ─── Toast ────────────────────────────────────────────────────────
 const Toast = ({ msg, type, onClose }) => (
   <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl
-    ${type === "success" ? "bg-[#153485]" : "bg-red-500"} text-white text-sm font-semibold`}>
+    ${type === "success" ? "bg-[#1D7872]" : "bg-red-500"} text-white text-sm font-semibold`}>
     {type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
     {msg}
     <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100 cursor-pointer"><X size={14} /></button>
@@ -43,12 +43,12 @@ const Toast = ({ msg, type, onClose }) => (
 // ─── Shared field styles ──────────────────────────────────────────
 const inputCls =
   `w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800
-   placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#153485]/30
-   focus:border-[#153485] transition-all`;
+   placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1D7872]/30
+   focus:border-[#1D7872] transition-all`;
 
 const selectCls =
   `w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800
-   focus:outline-none focus:ring-2 focus:ring-[#153485]/30 focus:border-[#153485]
+   focus:outline-none focus:ring-2 focus:ring-[#1D7872]/30 focus:border-[#1D7872]
    appearance-none transition-all cursor-pointer`;
 
 // ─── Task Form Modal ──────────────────────────────────────────────
@@ -104,7 +104,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-[#E6F1FB] border border-[#85B7EB]/40 flex items-center justify-center">
-              <ClipboardList size={16} className="text-[#153485]" />
+              <ClipboardList size={16} className="text-[#1D7872]" />
             </div>
             <h2 className="text-sm font-bold text-gray-900">
               {isEdit ? "Edit Task" : "Create New Task"}
@@ -229,7 +229,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 bg-[#153485] hover:bg-[#1a3f9e] disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm border border-white/10 shadow-md shadow-blue-900/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 cursor-pointer">
+              className="flex-1 bg-[#1D7872] hover:bg-[#1a3f9e] disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm border border-white/10 shadow-md shadow-blue-900/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 cursor-pointer">
               {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Task"}
             </button>
           </div>
@@ -245,16 +245,10 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
   const pm = priorityMeta(task.priority);
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "completed";
 
-  const borderAccent =
-    task.status === "completed"   ? "border-l-[3px] border-l-[#1D9E75]" :
-    task.status === "in_progress" ? "border-l-[3px] border-l-amber-400"  :
-    task.status === "cancelled"   ? "border-l-[3px] border-l-red-300"    :
-    "border-l-[3px] border-l-gray-200";
-
   return (
-    <div className={`bg-white border border-gray-100 rounded-2xl p-5
-                     hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-100/80 hover:border-gray-200
-                     transition-all duration-300 ease-out shadow-sm ${borderAccent}`}>
+    <div className="bg-white border border-gray-100 rounded-2xl p-5
+                    hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-100/80 hover:border-gray-200
+                    transition-all duration-300 ease-out shadow-sm">
 
       {/* Top row */}
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -270,14 +264,18 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
           )}
         </div>
         <div className="flex gap-1.5 flex-shrink-0">
-          <button onClick={() => onEdit(task)}
-            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-[#E6F1FB] hover:border-[#85B7EB]/40 flex items-center justify-center text-gray-400 hover:text-[#153485] transition-all duration-200 cursor-pointer"
-            aria-label="Edit task">
+          <button
+            onClick={() => onEdit(task)}
+            className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-[#E6F1FB] hover:border-[#85B7EB]/40 flex items-center justify-center text-gray-400 hover:text-[#1D7872] transition-all duration-200 cursor-pointer"
+            aria-label="Edit task"
+          >
             <Pencil size={12} />
           </button>
-          <button onClick={() => onDelete(task)}
+          <button
+            onClick={() => onDelete(task)}
             className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all duration-200 cursor-pointer"
-            aria-label="Delete task">
+            aria-label="Delete task"
+          >
             <Trash2 size={12} />
           </button>
         </div>
@@ -289,7 +287,7 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
           <Flag size={10} className="inline mr-1" />{pm.label}
         </span>
         {task.assignedToName && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-[#85B7EB]/40 bg-[#E6F1FB] text-[#153485]">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-[#85B7EB]/40 bg-[#E6F1FB] text-[#1D7872]">
             <UserCheck size={10} className="inline mr-1" />{task.assignedToName}
           </span>
         )}
@@ -481,7 +479,7 @@ export default function Tasks() {
   };
 
   const statCards = [
-    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-[#E6F1FB]",  border: "border-[#85B7EB]/40", iconColor: "text-[#153485]", valColor: "text-[#153485]"  },
+    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-[#E6F1FB]",  border: "border-[#85B7EB]/40", iconColor: "text-[#1D7872]", valColor: "text-[#1D7872]"  },
     { label: "Pending",     val: counts.pending,    icon: Circle,        bg: "bg-gray-50",    border: "border-gray-200",     iconColor: "text-gray-400",  valColor: "text-gray-700"   },
     { label: "In Progress", val: counts.inProgress, icon: Clock,         bg: "bg-amber-50",   border: "border-amber-200",    iconColor: "text-amber-500", valColor: "text-amber-700"  },
     { label: "Completed",   val: counts.completed,  icon: CheckCircle2,  bg: "bg-[#E1F5EE]",  border: "border-[#5DCAA5]/50", iconColor: "text-[#0F6E56]", valColor: "text-[#0F6E56]"  },
@@ -525,8 +523,8 @@ export default function Tasks() {
           <input type="text" placeholder="Search tasks…" value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-800
-                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#153485]/20
-                       focus:border-[#153485] transition-all shadow-sm" />
+                       placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
+                       focus:border-[#1D7872] transition-all shadow-sm" />
         </div>
 
         {/* Status filter */}
@@ -534,8 +532,8 @@ export default function Tasks() {
           <Filter size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
-                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#153485]/20
-                       focus:border-[#153485] appearance-none transition-all shadow-sm cursor-pointer
+                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
+                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer
                        hover:border-gray-300">
             <option value="all">All Status</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -548,8 +546,8 @@ export default function Tasks() {
           <Flag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
-                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#153485]/20
-                       focus:border-[#153485] appearance-none transition-all shadow-sm cursor-pointer
+                       font-semibold focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
+                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer
                        hover:border-gray-300">
             <option value="all">All Priority</option>
             {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
@@ -559,7 +557,7 @@ export default function Tasks() {
 
         {/* New Task button */}
         <button onClick={() => setModal("add")}
-          className="flex items-center gap-2 bg-[#153485] text-white font-bold px-4 py-2.5 rounded-xl text-sm
+          className="flex items-center gap-2 bg-[#1D7872] text-white font-bold px-4 py-2.5 rounded-xl text-sm
                      ml-auto cursor-pointer border border-white/10 shadow-md shadow-blue-900/20
                      transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-[#1a3f9e]
                      hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 active:shadow-sm">
@@ -577,7 +575,7 @@ export default function Tasks() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <div className="w-14 h-14 rounded-2xl bg-[#E6F1FB] border border-[#85B7EB]/40 flex items-center justify-center mx-auto mb-4">
-            <ClipboardList size={24} className="text-[#153485]" />
+            <ClipboardList size={24} className="text-[#1D7872]" />
           </div>
           <p className="text-sm font-bold text-gray-600">
             {tasks.length === 0 ? "No tasks yet" : "No matching tasks"}

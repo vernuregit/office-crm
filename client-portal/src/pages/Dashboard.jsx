@@ -113,7 +113,7 @@ const Dashboard = () => {
     <Layout title="Dashboard">
 
       {/* ── Welcome Hero ──────────────────────────────────────── */}
-      <div className="relative bg-[#153485] rounded-3xl p-7 mb-6 text-white overflow-hidden">
+      <div className="relative bg-[#1D7872] rounded-3xl p-7 mb-6 text-white overflow-hidden">
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full pointer-events-none" />
         <div className="absolute -bottom-14 right-16 w-64 h-64 bg-white/5 rounded-full pointer-events-none" />
         <div className="absolute top-4 right-32 w-20 h-20 bg-white/5 rounded-full pointer-events-none" />
@@ -133,7 +133,7 @@ const Dashboard = () => {
             <div className="flex items-center gap-3 mt-4">
               <button
                 onClick={() => navigate("/invoices")}
-                className="bg-white text-[#153485] text-sm font-bold px-4 py-2 rounded-xl cursor-pointer transition-colors shadow-sm flex items-center gap-1.5"
+                className="bg-white text-[#1D7872] text-sm font-bold px-4 py-2 rounded-xl cursor-pointer transition-colors shadow-sm flex items-center gap-1.5"
               >
                 <Receipt size={14} /> View Invoices
               </button>
@@ -185,7 +185,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={() => navigate("/service-status")}
-              className="text-[#153485] text-sm font-bold cursor-pointer transition-colors flex items-center gap-1"
+              className="text-[#1D7872] text-sm font-bold cursor-pointer transition-colors flex items-center gap-1"
             >
               View all <ChevronRight size={14} />
             </button>
@@ -246,7 +246,7 @@ const Dashboard = () => {
             </div>
             <button
               onClick={() => navigate("/invoices")}
-              className="text-[#153485] text-sm font-bold cursor-pointer   transition-colors flex items-center gap-1"
+              className="text-[#1D7872] text-sm font-bold cursor-pointer   transition-colors flex items-center gap-1"
             >
               All <ChevronRight size={14} />
             </button>

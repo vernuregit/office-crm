@@ -79,7 +79,7 @@ export default function Login() {
                   required
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm
                              text-gray-800 placeholder:text-gray-400
-                             focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                             focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                              transition-all"
                 />
               </div>
@@ -100,7 +100,7 @@ export default function Login() {
                   required
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-11 py-3 text-sm
                              text-gray-800 placeholder:text-gray-400
-                             focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485]
+                             focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872]
                              transition-all"
                 />
                 <button
@@ -127,7 +127,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#153485] 
+                className="w-full bg-[#1D7872] 
                            disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                            text-white font-bold py-3 rounded-xl text-sm
                            shadow-sm shadow-blue-100

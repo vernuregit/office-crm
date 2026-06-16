@@ -32,7 +32,7 @@ const inputCls = (padLeft = true) =>
   `w-full bg-gray-50 border border-gray-200 rounded-xl ${padLeft ? "pl-10" : "pl-4"} pr-4 py-2.5
    text-sm text-gray-800 placeholder:text-gray-400
    disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed
-   focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all`;
+   focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872] transition-all`;
 
 // ─── Employee Form Modal ──────────────────────────────────────────
 const EmployeeModal = ({ emp, onClose, onSave }) => {
@@ -78,7 +78,7 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#153485] border border-[#153485] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#1D7872] border border-[#1D7872] flex items-center justify-center">
               <User size={16} className="text-white" />
             </div>
             <h2 className="text-sm font-black text-gray-900">
@@ -126,7 +126,7 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
               onChange={e => set("role", e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5
                          text-sm text-gray-800 focus:outline-none focus:ring-2
-                         focus:ring-[#153485] focus:border-[#153485] transition-all"
+                         focus:ring-[#1D7872] focus:border-[#1D7872] transition-all"
             >
               <option value="employee">Employee</option>
               <option value="manager">Manager</option>
@@ -151,7 +151,7 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
                   minLength={6}
                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl pl-4 pr-11 py-2.5
                     text-sm text-gray-800 placeholder:text-gray-400
-                    focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all`}
+                    focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872] transition-all`}
                 />
                 <button
                   type="button"
@@ -187,7 +187,7 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-[#153485] cursor-pointer disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-blue-200"
+              className="flex-1 bg-[#1D7872] cursor-pointer disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-blue-200"
             >
               {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Employee"}
             </button>
@@ -201,7 +201,7 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
 // ─── Employee Card ────────────────────────────────────────────────
 const EmployeeCard = ({ emp, onEdit, onDelete }) => {
   const initials = emp.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const colors   = ["bg-[#153485]","bg-[#153485]","bg-[#153485]","bg-[#153485]","bg-[#153485]","bg-[#153485]"];
+  const colors   = ["bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]"];
   const color    = colors[emp.name?.charCodeAt(0) % colors.length] || colors[0];
 
   const isActive = emp.status !== "inactive";
@@ -256,7 +256,7 @@ const EmployeeCard = ({ emp, onEdit, onDelete }) => {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
-        <span className="text-xs font-bold text-[#153485] bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full capitalize">
+        <span className="text-xs font-bold text-[#1D7872] bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full capitalize">
           {emp.role || "employee"}
         </span>
         <span className={`text-xs font-bold px-2.5 py-1 rounded-full border capitalize
@@ -434,7 +434,7 @@ export default function Employees() {
         </div>
         <button
           onClick={() => setModal("add")}
-          className="flex items-center gap-2 bg-[#153485] text-white font-bold
+          className="flex items-center gap-2 bg-[#1D7872] text-white font-bold
                      px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-[#1a3f9e] shadow-sm shadow-blue-200 transition-all duration-300 ease-out hover:-translate-y-1 cursor-pointer active:translate-y-0"
         >
           <Plus size={16} />

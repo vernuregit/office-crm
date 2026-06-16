@@ -28,17 +28,12 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-[#153485] border-r border-gray-100 flex flex-col">
+    <aside className="w-64 min-h-screen bg-[#1D7872] border-r border-gray-100 flex flex-col">
 
-      
+
       {/* Logo */}
-      <div className="px-5 py-0 border-b border-gray-100 flex justify-center">
-      
-          <div className="w-full h-20 rounded-2xl  flex items-center justify-center flex-shrink-0 shadow-inner backdrop-blur-sm p-1.5">
-            <img src={Halowhite} alt="Halo CRM" className="w-full h-full object-contain" />
-         
-        </div>
-
+      <div className="px-5 py-0  flex justify-center">
+        <img src={Halowhite} alt="Halo CRM" className="w-full h-full object-contain" />
       </div>
       {/* Nav */}
       <nav className="flex-1 px-3 pt-6 space-y-1">
@@ -80,7 +75,7 @@ const Sidebar = () => {
       <div className="p-4  space-y-3 mt-32">
         {/* Mini user card */}
         <div className="flex items-center gap-3 px-2 py-1">
-          <div className="w-8 h-8 rounded-xl bg-[#153485]/10 border-2 border-white flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[#1D7872]/10 border-2 border-white flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-white">
               {userData?.name?.charAt(0).toUpperCase() || "E"}
             </span>

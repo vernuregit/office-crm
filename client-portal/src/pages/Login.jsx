@@ -104,7 +104,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="you@example.com"
-                  className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-#153485 focus:border-[#153485] transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-#1D7872 focus:border-[#1D7872] transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
             </div>
@@ -122,7 +122,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#153485] focus:border-[#153485] transition-all bg-gray-50 focus:bg-white"
+                  className="w-full border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1D7872] focus:border-[#1D7872] transition-all bg-gray-50 focus:bg-white"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#153485] cursor-pointer text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all duration-150 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+              className="w-full bg-[#1D7872] cursor-pointer text-white font-bold py-3 rounded-xl hover:opacity-90 transition-all duration-150 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
             >
               {loading
                 ? <><Loader2 size={16} className="animate-spin" /> Signing in...</>

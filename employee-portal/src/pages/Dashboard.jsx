@@ -72,8 +72,8 @@ const computeAttendanceStats = (sessions) => {
   });
 
   const allWorkingDays = workingDaysInRange(30);
-  const presentDays    = Object.keys(byDay);
-  const absentCount    = allWorkingDays.filter((d) => !presentDays.includes(d)).length;
+  const presentDays = Object.keys(byDay);
+  const absentCount = allWorkingDays.filter((d) => !presentDays.includes(d)).length;
 
   let onTimeCount = 0, lateCount = 0;
   let totalCheckinMins = 0, totalCheckoutMins = 0, totalDurationMins = 0;
@@ -81,17 +81,25 @@ const computeAttendanceStats = (sessions) => {
 
   Object.values(byDay).forEach((s) => {
     const startMs = toMs(s.startTime);
-    const endMs   = toMs(s.endTime);
+    const endMs = toMs(s.endTime);
     if (!startMs) return;
+
     const checkinMins = new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
     checkinMins <= 630 ? onTimeCount++ : lateCount++;
     totalCheckinMins += checkinMins;
     checkinCount++;
+
     if (endMs) {
       totalCheckoutMins += new Date(endMs).getHours() * 60 + new Date(endMs).getMinutes();
       checkoutCount++;
-      const dur = (endMs - startMs) / 60000;
-      if (dur > 0 && dur < 1440) { totalDurationMins += dur; durationCount++; }
+
+      const totalBreakMins = Number(s.totalBreakSeconds || 0) / 60;
+      const dur = (endMs - startMs) / 60000 - totalBreakMins;
+
+      if (dur > 0 && dur < 1440) {
+        totalDurationMins += dur;
+        durationCount++;
+      }
     }
   });
 
@@ -102,14 +110,14 @@ const computeAttendanceStats = (sessions) => {
   };
 
   return {
-    onTime:      onTimeCount,
-    late:        lateCount,
-    absent:      absentCount,
+    onTime: onTimeCount,
+    late: lateCount,
+    absent: absentCount,
     presentDays: presentDays.length,
-    avgHours:    fmtMins(durationCount  > 0 ? totalDurationMins  / durationCount  : 0),
-    avgCheckin:  checkinCount  > 0 ? fmtMinOfDay(totalCheckinMins  / checkinCount)  : "—",
+    avgHours: fmtMins(durationCount > 0 ? totalDurationMins / durationCount : 0),
+    avgCheckin: checkinCount > 0 ? fmtMinOfDay(totalCheckinMins / checkinCount) : "—",
     avgCheckout: checkoutCount > 0 ? fmtMinOfDay(totalCheckoutMins / checkoutCount) : "—",
-    onTimeRate:  checkinCount  > 0 ? ((onTimeCount / checkinCount) * 100).toFixed(2) + "%" : "—",
+    onTimeRate: checkinCount > 0 ? ((onTimeCount / checkinCount) * 100).toFixed(2) + "%" : "—",
   };
 };
 
@@ -161,7 +169,7 @@ const StatusBarCard = ({ icon: Icon, iconBg, iconColor, label, value, valueColor
 const ProgressDonut = ({ pct, activeBreak, cx = 52, cy = 52, r = 40, stroke = 10 }) => {
   const circ = 2 * Math.PI * r;
   const fill = (pct / 100) * circ;
-  const color = pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : pct > 50 ? "#153485" : "#EF9F27";
+  const color = pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : pct > 50 ? "#1D7872" : "#EF9F27";
   return (
     <svg width={cx * 2} height={cy * 2} viewBox={`0 0 ${cx * 2} ${cy * 2}`}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={stroke} />
@@ -237,7 +245,7 @@ const TodayCard = ({
         <ProgressDonut pct={pct} activeBreak={activeBreak} />
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-gray-500 mb-1">Workday Progress</p>
-          <p className="text-lg font-black text-[#153485] leading-tight">
+          <p className="text-lg font-black text-[#1D7872] leading-tight">
             {fmtMins(todayMins)}
             {/* <span className="text-xs font-semibold text-gray-400 ml-1">
               of {fmtMins(workDayMins)}
@@ -249,7 +257,7 @@ const TodayCard = ({
             <div className="h-1.5 rounded-full transition-all duration-500"
               style={{
                 width: `${pct}%`,
-                background: pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : "#153485"
+                background: pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : "#1D7872"
               }} />
           </div>
 
@@ -277,7 +285,7 @@ const TodayCard = ({
         <div className="h-9 bg-gray-100 rounded-xl animate-pulse" />
       ) : !activeSession ? (
         <button onClick={clockIn}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#153485] text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer shadow-sm">
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1D7872] text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer shadow-sm">
           <LogIn size={15} /> Check In
         </button>
       ) : activeBreak ? (
@@ -316,7 +324,7 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-gray-800 text-sm">My Attendance</h3>
         <button onClick={onViewStats}
-          className="text-xs text-[#153485] font-semibold hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0">
+          className="text-xs text-[#1D7872] font-semibold hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0">
           View All
         </button>
       </div>
@@ -335,7 +343,7 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
             {[
               { color: "#1D9E75", label: "Present Days",  val: attendanceStats.presentDays },
               { color: "#EF9F27", label: "Absent Days",   val: attendanceStats.absent      },
-              { color: "#153485", label: "On-time Rate",  val: attendanceStats.onTimeRate  },
+              { color: "#1D7872", label: "On-time Rate",  val: attendanceStats.onTimeRate  },
               { color: "#7F77DD", label: "Attendance %",  val: total > 0 ? ((attendanceStats.presentDays / (attendanceStats.presentDays + attendanceStats.absent)) * 100).toFixed(0) + "%" : "—" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2">
@@ -428,7 +436,7 @@ const Dashboard = () => {
 
   // ── Derived values ────────────────────────────────────────────
   const todayTasks     = tasks.filter((t) => t.status !== "completed").slice(0, 5);
-  const { text: greetText, emoji } = getGreeting();
+const { text: greetText } = getGreeting();
   const workDayMins    = 450;
   const activeElapsed  = activeSession ? Math.floor(elapsedSeconds / 60) : 0;
   const totalTodayMins = todayMinutes + activeElapsed;
@@ -480,7 +488,7 @@ const Dashboard = () => {
       <div className="flex items-start justify-between mb-5 p-5">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-            {greetText}, {userData?.name?.split(" ")[0] || "Employee"} {emoji}
+            {greetText}, {userData?.name?.split(" ")[0] || "Employee"} 
           </h2>
           <p className="text-sm text-gray-400 mt-0.5 font-medium">
             {userData?.designation || "Employee"}
@@ -521,7 +529,7 @@ const Dashboard = () => {
           iconBg="bg-amber-50" iconColor="text-amber-500"
           label="Worked Hours"
           value={fmtMins(totalTodayMins)}
-          valueColor="text-[#153485]"
+          valueColor="text-[#1D7872]"
         />
         <StatusBarCard
           icon={AlertCircle}
@@ -561,7 +569,7 @@ const Dashboard = () => {
           ) : (
             <>
               {[
-                { icon: Timer,      iconBg: "bg-blue-50",    iconColor: "text-[#153485]",    label: "Avg hours / day",   value: attendanceStats.avgHours     },
+                { icon: Timer,      iconBg: "bg-blue-50",    iconColor: "text-[#1D7872]",    label: "Avg hours / day",   value: attendanceStats.avgHours     },
                 { icon: LogIn,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600",  label: "Avg check-in",      value: attendanceStats.avgCheckin   },
                 { icon: TrendingUp, iconBg: "bg-green-50",   iconColor: "text-green-600",    label: "On-time arrival",   value: attendanceStats.onTimeRate,   valueColor: "text-emerald-500" },
                 { icon: LogOut,     iconBg: "bg-purple-50",  iconColor: "text-purple-600",   label: "Avg check-out",     value: attendanceStats.avgCheckout  },
@@ -589,7 +597,7 @@ const Dashboard = () => {
       {/* ── Task Stats Row ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5 px-5">
         {[
-          { Icon: ClipboardList, label: "Total Tasks",  value: stats.total,      color: "text-[#153485]", bg: "bg-blue-50"    },
+          { Icon: ClipboardList, label: "Total Tasks",  value: stats.total,      color: "text-[#1D7872]", bg: "bg-blue-50"    },
           { Icon: AlertCircle,   label: "To Do",        value: stats.todo,        color: "text-violet-600", bg: "bg-violet-50" },
           { Icon: Loader,        label: "In Progress",  value: stats.inProgress,  color: "text-amber-600",  bg: "bg-amber-50"  },
           { Icon: CheckCircle2,  label: "Completed",    value: stats.completed,   color: "text-emerald-600",bg: "bg-emerald-50"},
@@ -614,7 +622,7 @@ const Dashboard = () => {
             <p className="text-xs text-gray-400 mt-0.5">Tasks assigned to you</p>
           </div>
           <button onClick={() => navigate("/tasks")}
-            className="text-[#153485] text-sm font-semibold cursor-pointer inline-flex items-center gap-1 hover:opacity-75 transition-opacity border-none bg-transparent p-0">
+            className="text-[#1D7872] text-sm font-semibold cursor-pointer inline-flex items-center gap-1 hover:opacity-75 transition-opacity border-none bg-transparent p-0">
             View all <ChevronRight size={13} />
           </button>
         </div>
@@ -639,7 +647,7 @@ const Dashboard = () => {
                     <Flag size={13} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate group-hover:text-[#153485] transition-colors">
+                    <p className="text-sm font-medium text-gray-800 truncate group-hover:text-[#1D7872] transition-colors">
                       {task.title}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
@@ -657,7 +665,7 @@ const Dashboard = () => {
                   <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${taskBadge(task.status)}`}>
                     {taskBadgeLabel(task.status)}
                   </span>
-                  <ChevronRight size={13} className="text-gray-200 group-hover:text-[#153485] transition-colors" />
+                  <ChevronRight size={13} className="text-gray-200 group-hover:text-[#1D7872] transition-colors" />
                 </div>
               </div>
             ))}
