@@ -435,7 +435,7 @@ export default function Employees() {
         <button
           onClick={() => setModal("add")}
           className="flex items-center gap-2 bg-[#1D7872] text-white font-bold
-                     px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-[#1a3f9e] shadow-sm shadow-blue-200 transition-all duration-300 ease-out hover:-translate-y-1 cursor-pointer active:translate-y-0"
+                     px-4 py-2.5 rounded-xl text-sm transition-all  shadow-sm shadow-blue-200 transition-all duration-300 ease-out hover:-translate-y-1 cursor-pointer active:translate-y-0"
         >
           <Plus size={16} />
           Add Employee

@@ -18,7 +18,7 @@ const LEAVE_TYPES = [
   "Casual Leave", "Sick Leave", "Emergency Leave",
   "Work From Home", "Half Day", "Other",
 ];
-
+const MIN_NOTICE_DAYS = 3;
 const fmt = (ymd) => {
   if (!ymd) return null;
   return new Date(ymd).toLocaleDateString("en-IN", {
@@ -42,7 +42,11 @@ const LeaveModal = ({ onClose, onSubmit }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const pickerRef = useRef(null);
-  const today = new Date().toISOString().split("T")[0];
+  const minDateObj = new Date();
+minDateObj.setDate(minDateObj.getDate() + MIN_NOTICE_DAYS);
+
+const today = new Date().toISOString().split("T")[0];
+const minLeaveDate = minDateObj.toISOString().split("T")[0];
 
   // Close date picker on outside click
   useEffect(() => {
@@ -87,7 +91,22 @@ const LeaveModal = ({ onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!fromDate || !reason.trim()) return;
-    const finalTo = toDate || fromDate;
+   const selectedDate = new Date(fromDate);
+
+const allowedDate = new Date();
+allowedDate.setHours(0, 0, 0, 0);
+allowedDate.setDate(allowedDate.getDate() + MIN_NOTICE_DAYS);
+
+if (
+  leaveType !== "Emergency Leave" &&
+  leaveType !== "Sick Leave" &&
+  selectedDate < allowedDate
+) {
+  alert(`Leave must be applied at least ${MIN_NOTICE_DAYS} days before.`);
+  return;
+}
+
+const finalTo = toDate || fromDate;
     setSubmitting(true);
     await onSubmit({
       leaveType, fromDate, toDate: finalTo, reason,
@@ -115,6 +134,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
             <div>
               <h3 className="font-black text-gray-900 text-base leading-tight">Apply for Leave</h3>
               <p className="text-xs text-gray-400 font-medium">Submit your leave request</p>
+        
             </div>
           </div>
           <button onClick={onClose}
@@ -181,7 +201,7 @@ const LeaveModal = ({ onClose, onSubmit }) => {
                     </label>
                     <div className="relative">
                       <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#1D7872] pointer-events-none" />
-                      <input type="date" value={fromDate} min={today}
+                      <input type="date" value={fromDate} min={minLeaveDate}
                         onChange={(e) => handleFromChange(e.target.value)}
                         className="w-full border-2 border-gray-200 rounded-xl pl-9 pr-4 py-2.5
                                    text-sm font-semibold text-gray-800 focus:outline-none

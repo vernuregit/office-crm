@@ -11,14 +11,15 @@ import Halo from "../../public/halologo.png";
 import Halowhite from "../../public/Logowhite.png";
 
 const NAV = [
-  { to: "/",          icon: LayoutDashboard, label: "Dashboard"      },
-  { to: "/employees", icon: Users,           label: "Employees"      },
-  { to: "/tasks",     icon: ClipboardList,   label: "Tasks"          },
-  { to: "/leave",     icon: CalendarClock,   label: "Leave Requests" },
-   { to: "/tickets",   icon: ClipboardList,   label: "Tickets"        },
-  { to: "/time-logs", icon: Clock,           label: "Time Logs"      },
-  { to: "/settings",  icon: Settings,        label: "Settings"       },
- 
+  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { to: "/employees", icon: Users, label: "Employees" },
+  { to: "/tasks", icon: ClipboardList, label: "Tasks" },
+  { to: "/leave", icon: CalendarClock, label: "Leave Requests" },
+  { to: "/tickets", icon: ClipboardList, label: "Tickets" },
+  { to: "/attendance", icon: CalendarClock, label: "Attendance" },
+  { to: "/time-logs", icon: Clock, label: "Time Logs" },
+  { to: "/settings", icon: Settings, label: "Settings" },
+
 
 ];
 
@@ -41,10 +42,10 @@ export default function Layout({ children, title }) {
       `}
     >
       {/* ── Logo ── */}
-     {/* Logo */}
-          <div className="px-5 py-0  flex justify-center">
-            <img src={Halowhite} alt="Halo CRM" className="w-full h-full object-contain" />
-          </div>
+      {/* Logo */}
+      <div className="px-5 py-0  flex justify-center">
+        <img src={Halowhite} alt="Halo CRM" className="w-full h-full object-contain" />
+      </div>
 
       {/* ── Nav ── */}
       <nav className="flex-1 px-3 pt-5 pb-2 space-y-1 overflow-y-auto">

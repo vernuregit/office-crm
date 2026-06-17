@@ -765,7 +765,7 @@ export default function LeaveRequests() {
 
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold px-5 py-2.5 rounded-2xl text-sm transition-all shadow-lg shadow-teal-200 ml-auto hover:-translate-y-0.5 active:translate-y-0"
+          className="flex items-center gap-2 cursor-pointer bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-bold px-5 py-2.5 rounded-2xl text-sm transition-all shadow-lg shadow-teal-200 ml-auto hover:-translate-y-0.5 active:translate-y-0"
         >
           <Plus size={15} /> New Request
         </button>

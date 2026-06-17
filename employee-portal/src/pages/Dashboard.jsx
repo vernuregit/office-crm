@@ -9,24 +9,22 @@ import {
   LogIn, LogOut, ClipboardList,
   CheckCircle2, Loader, Timer, Calendar,
   TrendingUp, ChevronRight, Flag,
-  Sun, Sunset, Moon, AlertCircle, Coffee,
-  UserCheck, Clock, TrendingDown, Activity,
+  AlertCircle, Coffee,
+  UserCheck, Activity,
 } from "lucide-react";
-
 
 // ─── Greeting ─────────────────────────────────────────────────────
 const getGreeting = () => {
   const h = new Date().getHours();
-  if (h < 12) return { text: "Good morning",   };
-  if (h < 17) return { text: "Good afternoon", };
-  return       { text: "Good evening",          };
+  if (h < 12) return { text: "Good morning" };
+  if (h < 17) return { text: "Good afternoon" };
+  return { text: "Good evening" };
 };
 
 const todayLabel = () =>
   new Date().toLocaleDateString("en-IN", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
-
 
 // ─── Helpers ──────────────────────────────────────────────────────
 const toMs = (val) => {
@@ -56,6 +54,13 @@ const workingDaysInRange = (days) => {
   return result;
 };
 
+// ─── Office Time Config ───────────────────────────────────────────
+// Office time: 10:30 AM
+// Grace window: 10:30 AM – 10:59 AM → Present (on-time)
+// 11:00 AM or later → Late
+const OFFICE_START_MINS = 630;   // 10:30 AM
+const LATE_THRESHOLD_MINS = 660; // 11:00 AM — at or after this = late
+
 const computeAttendanceStats = (sessions) => {
   if (!sessions.length) return {
     onTime: 0, late: 0, absent: 0,
@@ -84,8 +89,12 @@ const computeAttendanceStats = (sessions) => {
     const endMs = toMs(s.endTime);
     if (!startMs) return;
 
-    const checkinMins = new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
-    checkinMins <= 630 ? onTimeCount++ : lateCount++;
+    const checkinMins =
+      new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
+
+    // ✅ On-time: up to 10:59 AM (659 mins). Late: 11:00 AM+ (660 mins)
+    checkinMins < LATE_THRESHOLD_MINS ? onTimeCount++ : lateCount++;
+
     totalCheckinMins += checkinMins;
     checkinCount++;
 
@@ -95,7 +104,6 @@ const computeAttendanceStats = (sessions) => {
 
       const totalBreakMins = Number(s.totalBreakSeconds || 0) / 60;
       const dur = (endMs - startMs) / 60000 - totalBreakMins;
-
       if (dur > 0 && dur < 1440) {
         totalDurationMins += dur;
         durationCount++;
@@ -121,6 +129,146 @@ const computeAttendanceStats = (sessions) => {
   };
 };
 
+// ─── Attendance Over Time (weekly buckets, last 4 weeks) ──────────
+const buildAttendanceOverTime = (sessions) => {
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  // Build 4 weekly buckets: Week 1 = oldest, Week 4 = most recent
+  const weeks = Array.from({ length: 4 }, (_, i) => {
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() - i * 7);
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+
+    // Working days in this week (Mon–Sat, no Sunday)
+    const workingDays = [];
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      if (d.getDay() !== 0) workingDays.push(dayKey(d.getTime()));
+    }
+
+    return { label: `W${4 - i}`, startDate, endDate, workingDays };
+  }).reverse();
+
+  // Map sessions by day
+  const byDay = {};
+  sessions.forEach((s) => {
+    const startMs = toMs(s.startTime);
+    if (!startMs) return;
+    const key = dayKey(startMs);
+    if (!byDay[key]) byDay[key] = s;
+  });
+
+  const nowMs = Date.now();
+
+  return weeks.map((week) => {
+    let present = 0, late = 0, absent = 0;
+
+    week.workingDays.forEach((dk) => {
+      const dayDate = new Date(dk + "T00:00:00");
+      const isFuture = dayDate.getTime() > nowMs;
+      if (isFuture) return; // skip future days
+
+      const session = byDay[dk];
+      if (session) {
+        const startMs = toMs(session.startTime);
+        const checkinMins =
+          new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
+        if (checkinMins < LATE_THRESHOLD_MINS) {
+          present++;
+        } else {
+          late++;
+        }
+      } else {
+        absent++;
+      }
+    });
+
+    return { label: week.label, present, late, absent };
+  });
+};
+
+// ─── Attendance Over Time Chart ───────────────────────────────────
+const AttendanceOverTimeChart = ({ data }) => {
+  const maxVal = Math.max(...data.map((d) => d.present + d.late + d.absent), 1);
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-1">
+        <div>
+          <h3 className="font-bold text-gray-800 text-sm">Attendance Over Time</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Last 4 weeks · Mon–Sat</p>
+        </div>
+        <div className="flex items-center gap-3 text-[10px] font-semibold">
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block bg-[#1D9E75]" /> Present
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block bg-[#EF9F27]" /> Late
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block bg-[#EF4444]" /> Absent
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-end gap-4 mt-4 h-28">
+        {data.map((week) => {
+          const total = week.present + week.late + week.absent;
+          const presentPct = total > 0 ? (week.present / maxVal) * 100 : 0;
+          const latePct    = total > 0 ? (week.late    / maxVal) * 100 : 0;
+          const absentPct  = total > 0 ? (week.absent  / maxVal) * 100 : 0;
+
+          return (
+            <div key={week.label} className="flex-1 flex flex-col items-center gap-1">
+              {/* Stacked bar */}
+              <div className="w-full flex flex-col justify-end rounded-lg overflow-hidden h-20 gap-px bg-gray-50 border border-gray-100">
+                {week.absent > 0 && (
+                  <div
+                    className="w-full bg-[#EF4444] transition-all duration-500"
+                    style={{ height: `${absentPct}%` }}
+                    title={`Absent: ${week.absent}`}
+                  />
+                )}
+                {week.late > 0 && (
+                  <div
+                    className="w-full bg-[#EF9F27] transition-all duration-500"
+                    style={{ height: `${latePct}%` }}
+                    title={`Late: ${week.late}`}
+                  />
+                )}
+                {week.present > 0 && (
+                  <div
+                    className="w-full bg-[#1D9E75] transition-all duration-500 rounded-t-sm"
+                    style={{ height: `${presentPct}%` }}
+                    title={`Present: ${week.present}`}
+                  />
+                )}
+              </div>
+              <span className="text-[10px] font-bold text-gray-400">{week.label}</span>
+              <span className="text-[10px] font-semibold text-gray-500 tabular-nums">{total}d</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Summary row */}
+      <div className="mt-3 pt-3 border-t border-gray-50 grid grid-cols-3 gap-2">
+        {[
+          { label: "Total Present", val: data.reduce((s, d) => s + d.present, 0), color: "text-emerald-600" },
+          { label: "Total Late",    val: data.reduce((s, d) => s + d.late, 0),    color: "text-amber-500"   },
+          { label: "Total Absent",  val: data.reduce((s, d) => s + d.absent, 0),  color: "text-red-500"     },
+        ].map((item) => (
+          <div key={item.label} className="text-center">
+            <p className={`text-base font-black tabular-nums ${item.color}`}>{item.val}</p>
+            <p className="text-[10px] text-gray-400 font-medium">{item.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // ─── Task helpers ─────────────────────────────────────────────────
 const taskBadge = (s) => {
@@ -149,7 +297,6 @@ const priorityLabel = (p) => {
   return "Low priority";
 };
 
-
 // ─── Top Status Bar Card ──────────────────────────────────────────
 const StatusBarCard = ({ icon: Icon, iconBg, iconColor, label, value, valueColor = "text-gray-800", extra }) => (
   <div className="bg-white rounded-2xl border border-gray-100 px-4 py-3.5 flex items-center gap-3 shadow-sm">
@@ -163,7 +310,6 @@ const StatusBarCard = ({ icon: Icon, iconBg, iconColor, label, value, valueColor
     </div>
   </div>
 );
-
 
 // ─── Donut (Today progress) ───────────────────────────────────────
 const ProgressDonut = ({ pct, activeBreak, cx = 52, cy = 52, r = 40, stroke = 10 }) => {
@@ -181,7 +327,6 @@ const ProgressDonut = ({ pct, activeBreak, cx = 52, cy = 52, r = 40, stroke = 10
     </svg>
   );
 };
-
 
 // ─── Attendance Donut ─────────────────────────────────────────────
 const DonutChart = ({ segments, total, cx = 52, cy = 52, r = 38, stroke = 14 }) => {
@@ -210,7 +355,6 @@ const DonutChart = ({ segments, total, cx = 52, cy = 52, r = 38, stroke = 14 }) 
   );
 };
 
-
 // ─── Today Overview Card ──────────────────────────────────────────
 const TodayCard = ({
   todayMins, workDayMins, activeSession,
@@ -223,8 +367,7 @@ const TodayCard = ({
   const timeLeft = workDayMins - todayMins;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4 ">
-      {/* Header */}
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-gray-800 text-sm">Today's Overview</h3>
         <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full
@@ -240,19 +383,13 @@ const TodayCard = ({
         </span>
       </div>
 
-      {/* Donut + info */}
       <div className="flex items-center gap-5">
         <ProgressDonut pct={pct} activeBreak={activeBreak} />
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-gray-500 mb-1">Workday Progress</p>
           <p className="text-lg font-black text-[#1D7872] leading-tight">
             {fmtMins(todayMins)}
-            {/* <span className="text-xs font-semibold text-gray-400 ml-1">
-              of {fmtMins(workDayMins)}
-            </span> */}
           </p>
-
-          {/* Progress bar */}
           <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2 mb-3">
             <div className="h-1.5 rounded-full transition-all duration-500"
               style={{
@@ -260,8 +397,6 @@ const TodayCard = ({
                 background: pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : "#1D7872"
               }} />
           </div>
-
-          {/* Timer pills */}
           {activeSession && !activeBreak && (
             <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs text-amber-700 font-semibold mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -280,7 +415,6 @@ const TodayCard = ({
         </div>
       </div>
 
-      {/* Action buttons */}
       {timerLoading ? (
         <div className="h-9 bg-gray-100 rounded-xl animate-pulse" />
       ) : !activeSession ? (
@@ -308,7 +442,6 @@ const TodayCard = ({
     </div>
   );
 };
-
 
 // ─── My Attendance Card ───────────────────────────────────────────
 const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
@@ -341,10 +474,12 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
           <DonutChart segments={segments} total={total} />
           <div className="flex flex-col gap-3 flex-1 min-w-0">
             {[
-              { color: "#1D9E75", label: "Present Days",  val: attendanceStats.presentDays },
-              { color: "#EF9F27", label: "Absent Days",   val: attendanceStats.absent      },
-              { color: "#1D7872", label: "On-time Rate",  val: attendanceStats.onTimeRate  },
-              { color: "#7F77DD", label: "Attendance %",  val: total > 0 ? ((attendanceStats.presentDays / (attendanceStats.presentDays + attendanceStats.absent)) * 100).toFixed(0) + "%" : "—" },
+              { color: "#1D9E75", label: "Present Days", val: attendanceStats.presentDays },
+              { color: "#EF4444", label: "Absent Days",  val: attendanceStats.absent      },
+              { color: "#1D7872", label: "On-time Rate", val: attendanceStats.onTimeRate  },
+              { color: "#7F77DD", label: "Attendance %", val: total > 0
+                  ? ((attendanceStats.presentDays / (attendanceStats.presentDays + attendanceStats.absent)) * 100).toFixed(0) + "%"
+                  : "—" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color }} />
@@ -360,14 +495,13 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
           <CheckCircle2 size={13} className="text-emerald-500 flex-shrink-0" />
           <p className="text-xs text-emerald-700 font-medium">
-            On-time rate: <strong>{attendanceStats.onTimeRate}</strong>
+            On-time: arrive by <strong>10:59 AM</strong> · Late from <strong>11:00 AM</strong>
           </p>
         </div>
       )}
     </div>
   );
 };
-
 
 // ─── Dashboard ────────────────────────────────────────────────────
 const Dashboard = () => {
@@ -392,6 +526,7 @@ const Dashboard = () => {
   });
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [sessions,          setSessions]          = useState([]);
+  const [overTimeData,      setOverTimeData]      = useState([]);
 
   // ── Fetch Tasks ───────────────────────────────────────────────
   useEffect(() => {
@@ -420,14 +555,19 @@ const Dashboard = () => {
     const fetchAttendance = async () => {
       setAttendanceLoading(true);
       try {
-        const cutoff   = new Date(); cutoff.setDate(cutoff.getDate() - 30);
-        const snap     = await getDocs(query(
-          collection(db, "timeLogs", user.uid, "sessions"), orderBy("startTime", "desc")
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 30);
+        const snap = await getDocs(query(
+          collection(db, "timeLogs", user.uid, "sessions"),
+          orderBy("startTime", "desc")
         ));
-        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        const data = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
           .filter((s) => { const ms = toMs(s.startTime); return ms && ms >= cutoff.getTime(); });
+
         setSessions(data);
         setAttendanceStats(computeAttendanceStats(data));
+        setOverTimeData(buildAttendanceOverTime(data));
       } catch (err) { console.error("Attendance fetch error:", err); }
       setAttendanceLoading(false);
     };
@@ -435,23 +575,24 @@ const Dashboard = () => {
   }, [user?.uid]);
 
   // ── Derived values ────────────────────────────────────────────
-  const todayTasks     = tasks.filter((t) => t.status !== "completed").slice(0, 5);
-const { text: greetText } = getGreeting();
-  const workDayMins    = 450;
-  const activeElapsed  = activeSession ? Math.floor(elapsedSeconds / 60) : 0;
+  const todayTasks    = tasks.filter((t) => t.status !== "completed").slice(0, 5);
+  const { text: greetText } = getGreeting();
+  const workDayMins   = 450;
+  const activeElapsed = activeSession ? Math.floor(elapsedSeconds / 60) : 0;
   const totalTodayMins = todayMinutes + activeElapsed;
 
-  // Today's session for clock-in/out display
   const todayKey = dayKey(Date.now());
   const todaySession = sessions.find((s) => {
     const ms = toMs(s.startTime);
     return ms && dayKey(ms) === todayKey;
   });
-  const clockInTime  = todaySession
+
+  const clockInTime = todaySession
     ? new Date(toMs(todaySession.startTime)).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
     : activeSession
       ? new Date(toMs(activeSession.startTime) || Date.now()).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
       : "—";
+
   const clockOutTime = todaySession?.endTime
     ? new Date(toMs(todaySession.endTime)).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
     : activeSession ? "Active" : "—";
@@ -463,22 +604,23 @@ const { text: greetText } = getGreeting();
     if (period === "PM" && h !== 12) h += 12;
     if (period === "AM" && h === 12) h = 0;
     const totalMins = h * 60 + m;
-    const diff = totalMins - 630; // 10:30 AM
+    // Late by is calculated from office start (10:30), not from 11:00
+    const diff = totalMins - OFFICE_START_MINS;
     if (diff <= 0) return null;
     return `${Math.floor(diff / 60) > 0 ? Math.floor(diff / 60) + "h " : ""}${diff % 60}min`;
   })();
 
   const status = !activeSession && totalTodayMins === 0
     ? "Absent"
-    : activeBreak ? "On Break"
+    : activeBreak  ? "On Break"
     : activeSession ? "Present"
     : "Checked Out";
 
   const statusStyle = {
-    Absent:       "text-red-500",
-    "On Break":   "text-orange-500",
-    Present:      "text-emerald-500",
-    "Checked Out":"text-blue-500",
+    Absent:         "text-red-500",
+    "On Break":     "text-orange-500",
+    Present:        "text-emerald-500",
+    "Checked Out":  "text-blue-500",
   }[status] || "text-gray-500";
 
   return (
@@ -488,7 +630,7 @@ const { text: greetText } = getGreeting();
       <div className="flex items-start justify-between mb-5 p-5">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-            {greetText}, {userData?.name?.split(" ")[0] || "Employee"} 
+            {greetText}, {userData?.name?.split(" ")[0] || "Employee"}
           </h2>
           <p className="text-sm text-gray-400 mt-0.5 font-medium">
             {userData?.designation || "Employee"}
@@ -569,10 +711,10 @@ const { text: greetText } = getGreeting();
           ) : (
             <>
               {[
-                { icon: Timer,      iconBg: "bg-blue-50",    iconColor: "text-[#1D7872]",    label: "Avg hours / day",   value: attendanceStats.avgHours     },
-                { icon: LogIn,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600",  label: "Avg check-in",      value: attendanceStats.avgCheckin   },
-                { icon: TrendingUp, iconBg: "bg-green-50",   iconColor: "text-green-600",    label: "On-time arrival",   value: attendanceStats.onTimeRate,   valueColor: "text-emerald-500" },
-                { icon: LogOut,     iconBg: "bg-purple-50",  iconColor: "text-purple-600",   label: "Avg check-out",     value: attendanceStats.avgCheckout  },
+                { icon: Timer,      iconBg: "bg-blue-50",    iconColor: "text-[#1D7872]",   label: "Avg hours / day", value: attendanceStats.avgHours    },
+                { icon: LogIn,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600", label: "Avg check-in",    value: attendanceStats.avgCheckin  },
+                { icon: TrendingUp, iconBg: "bg-green-50",   iconColor: "text-green-600",   label: "On-time arrival", value: attendanceStats.onTimeRate,  valueColor: "text-emerald-500" },
+                { icon: LogOut,     iconBg: "bg-purple-50",  iconColor: "text-purple-600",  label: "Avg check-out",   value: attendanceStats.avgCheckout },
               ].map((c, i) => (
                 <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col gap-2 shadow-sm">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${c.iconBg}`}>
@@ -594,13 +736,22 @@ const { text: greetText } = getGreeting();
         />
       </div>
 
+      {/* ── Attendance Over Time ───────────────────────────────── */}
+      {/* <div className="mb-5 px-5">
+        {attendanceLoading ? (
+          <div className="h-48 bg-gray-100 rounded-2xl animate-pulse" />
+        ) : (
+          <AttendanceOverTimeChart data={overTimeData} />
+        )}
+      </div> */}
+
       {/* ── Task Stats Row ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5 px-5">
         {[
-          { Icon: ClipboardList, label: "Total Tasks",  value: stats.total,      color: "text-[#1D7872]", bg: "bg-blue-50"    },
-          { Icon: AlertCircle,   label: "To Do",        value: stats.todo,        color: "text-violet-600", bg: "bg-violet-50" },
-          { Icon: Loader,        label: "In Progress",  value: stats.inProgress,  color: "text-amber-600",  bg: "bg-amber-50"  },
-          { Icon: CheckCircle2,  label: "Completed",    value: stats.completed,   color: "text-emerald-600",bg: "bg-emerald-50"},
+          { Icon: ClipboardList, label: "Total Tasks",  value: stats.total,     color: "text-[#1D7872]",   bg: "bg-blue-50"    },
+          { Icon: AlertCircle,   label: "To Do",        value: stats.todo,      color: "text-violet-600",  bg: "bg-violet-50"  },
+          { Icon: Loader,        label: "In Progress",  value: stats.inProgress,color: "text-amber-600",   bg: "bg-amber-50"   },
+          { Icon: CheckCircle2,  label: "Completed",    value: stats.completed, color: "text-emerald-600", bg: "bg-emerald-50" },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
             <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
@@ -615,7 +766,7 @@ const { text: greetText } = getGreeting();
       </div>
 
       {/* ── Pending Tasks ─────────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm ">
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm mx-5 mb-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-bold text-gray-900 text-[15px]">Pending Tasks</h3>

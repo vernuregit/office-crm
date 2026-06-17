@@ -559,7 +559,7 @@ export default function Tasks() {
         <button onClick={() => setModal("add")}
           className="flex items-center gap-2 bg-[#1D7872] text-white font-bold px-4 py-2.5 rounded-xl text-sm
                      ml-auto cursor-pointer border border-white/10 shadow-md shadow-blue-900/20
-                     transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-[#1a3f9e]
+                     transition-all duration-300 ease-out hover:-translate-y-1 
                      hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 active:shadow-sm">
           <Plus size={16} /> New Task
         </button>

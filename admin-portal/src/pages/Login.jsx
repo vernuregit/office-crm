@@ -1,17 +1,19 @@
-import { useState }                          from "react";
-import { useNavigate }                       from "react-router-dom";
-import { signInWithEmailAndPassword }        from "firebase/auth";
-import { auth }                              from "../firebase/config";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/config";
 import { Eye, EyeOff, Lock, Mail, ShieldCheck, AlertCircle } from "lucide-react";
 import logo from "./../assets/vinpro.jpg"
+import Halowhite from "../../public/Logowhite.png";
+import Halologo from "../../public/halologo.png";
 
 export default function Login() {
-  const navigate             = useNavigate();
-  const [email,    setEmail]    = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPwd,  setShowPwd]  = useState(false);
-  const [error,    setError]    = useState("");
-  const [loading,  setLoading]  = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,8 +27,8 @@ export default function Login() {
         err.code === "auth/invalid-credential"
           ? "Invalid email or password"
           : err.code === "auth/user-not-found"
-          ? "No admin account found"
-          : "Login failed. Please try again."
+            ? "No admin account found"
+            : "Login failed. Please try again."
       );
     }
     setLoading(false);
@@ -54,9 +56,9 @@ export default function Login() {
         <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl shadow-gray-200/80">
 
           {/* Logo */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-28 h-20 rounded-2xl  flex items-center justify-center mb-4 ">
-              <img src={logo} alt="Logo" />
+          <div className="text-center mb-8">
+            <div className="w-full h-32 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+              <img src={Halologo} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-black text-gray-900 tracking-tight">Admin Portal</h1>
             <p className="text-sm text-gray-400 font-medium mt-1">Sign in to manage your team</p>
@@ -158,7 +160,7 @@ export default function Login() {
           </div>
         </div>
 
-        
+
       </div>
     </div>
   );

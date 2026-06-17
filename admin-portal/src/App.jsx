@@ -15,6 +15,7 @@ import LeaveRequests from "./pages/LeaveRequests";
 import TimeLogs from "./pages/TimeLogs";
 import Settings from "./pages/Settings";
 import AdminTickets from "./pages/adminTickets";
+import AdminAttendance from "./pages/AdminAttendance";
 // ─── Guarded Route ────────────────────────────────────────────────
 const Guarded = ({ children }) => (
   <ProtectedRoute>{children}</ProtectedRoute>
@@ -42,6 +43,7 @@ function AppShell() {
         <Route path="/time-logs" element={<Guarded><TimeLogs /></Guarded>} />
         <Route path="/settings" element={<Guarded><Settings /></Guarded>} />
         <Route path="/tickets" element={<Guarded><AdminTickets /></Guarded>} />
+        <Route path="/attendance" element={<Guarded><AdminAttendance /></Guarded>} />
         {/* Fallback */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

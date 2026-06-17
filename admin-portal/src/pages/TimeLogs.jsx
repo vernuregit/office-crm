@@ -140,7 +140,7 @@ const EmpCard = ({ emp, totalMins, sessionCount, activeSessions, onClick }) => {
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br bg-black/70 flex items-center justify-center text-white text-sm font-black flex-shrink-0 shadow-lg`}>
+            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br bg-[#1D7872] flex items-center justify-center text-white text-sm font-black flex-shrink-0 shadow-lg`}>
               {initials}
             </div>
             <div className="min-w-0">

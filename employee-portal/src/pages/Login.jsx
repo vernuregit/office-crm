@@ -8,6 +8,9 @@ import {
   CheckCircle, ArrowRight, Loader2, KeyRound
 } from "lucide-react";
 import logo from "./../assets/vinpro.jpg";
+import Halowhite from "../../public/Logowhite.png";
+import Halologo from "../../public/halologo.png";
+
 
 const Login = () => {
   const [email,      setEmail]      = useState("");
@@ -131,8 +134,8 @@ const Login = () => {
 
             {/* Logo + Title */}
             <div className="text-center mb-8">
-              <div className="w-28 h-20 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                <img src={logo} alt="Logo" className="w-full h-full object-contain" />
+              <div className="w-full h-32 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                <img src={Halologo} alt="Logo" className="w-full h-full object-contain" />
               </div>
               <h1 className="text-3xl font-black text-gray-900 tracking-tight">Employee Portal</h1>
               <p className="text-gray-500 text-sm mt-2 font-medium">Sign in to your work account</p>
