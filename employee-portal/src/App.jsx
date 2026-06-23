@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Invoices from "./pages/Invoices";
 import EmployeeTickets from "./pages/EmployeeTickets";
 import Documents from "./pages/Documents";
+import LearningEmployee from "./pages/LearningEmployee";
 
 const Placeholder = ({ name }) => (
   <div className="flex items-center justify-center h-screen bg-[#F5F7FF]">
@@ -33,6 +34,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/tickets" element={<ProtectedRoute><EmployeeTickets /></ProtectedRoute>} />
         <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+        <Route path="/learning" element={<ProtectedRoute><LearningEmployee name="Learning" /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>

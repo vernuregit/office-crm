@@ -24,7 +24,7 @@ const Login = () => {
   const { user }  = useAuthStore();
 
   useEffect(() => {
-    if (user) navigate("/dashboard", { replace: true });
+    if (user) navigate("/dashboard", { replace: true }); 
   }, [user]);
 
   const handleLogin = async (e) => {

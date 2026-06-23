@@ -13,9 +13,11 @@ import Halowhite from "../../public/Logowhite.png";
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { label: "My Tasks", path: "/tasks", icon: ClipboardList },
+    {label: "learning", path: "/learning", icon: Building2},
   { label: "Tickets", path: "/tickets", icon: TicketCheck },
   { label: "Leave", path: "/leave", icon: CalendarOff },
   { label: "Profile", path: "/profile", icon: User },
+
 ];
 
 const Sidebar = () => {

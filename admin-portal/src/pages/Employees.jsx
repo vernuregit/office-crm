@@ -201,40 +201,38 @@ const EmployeeModal = ({ emp, onClose, onSave }) => {
 // ─── Employee Card ────────────────────────────────────────────────
 const EmployeeCard = ({ emp, onEdit, onDelete }) => {
   const initials = emp.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
-  const colors   = ["bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]","bg-[#1D7872]"];
-  const color    = colors[emp.name?.charCodeAt(0) % colors.length] || colors[0];
-
+  const color = "bg-[#1D7872]";
   const isActive = emp.status !== "inactive";
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 shadow-sm group">
+    <div className="relative bg-white border border-gray-100 rounded-2xl p-5 hover:shadow-md hover:border-gray-200 transition-all duration-200 shadow-sm group overflow-hidden">
 
-      {/* Top row */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center text-white text-sm font-black flex-shrink-0 shadow-sm`}>
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-gray-900 truncate">{emp.name}</p>
-            <p className="text-xs text-gray-400 truncate font-medium">{emp.email}</p>
-          </div>
+      {/* Hover action buttons — absolutely positioned inside card */}
+      <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+        <button
+          onClick={() => onEdit(emp)}
+          className="w-8 h-8 cursor-pointer rounded-lg bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-200 flex items-center justify-center text-gray-400 hover:text-blue-600 transition-all shadow-sm"
+          aria-label="Edit employee"
+        >
+          <Pencil size={13} />
+        </button>
+        <button
+          onClick={() => onDelete(emp)}
+          className="w-8 h-8 cursor-pointer rounded-lg bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all shadow-sm"
+          aria-label="Delete employee"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+
+      {/* Top row — avatar + name only, no buttons here */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center text-white text-sm font-black flex-shrink-0 shadow-sm`}>
+          {initials}
         </div>
-        <div className="flex gap-1.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => onEdit(emp)}
-            className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 flex items-center justify-center text-gray-400 hover:text-blue-600 transition-all"
-            aria-label="Edit employee"
-          >
-            <Pencil size={13} />
-          </button>
-          <button
-            onClick={() => onDelete(emp)}
-            className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 hover:bg-red-50 hover:border-red-200 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all"
-            aria-label="Delete employee"
-          >
-            <Trash2 size={13} />
-          </button>
+        <div className="min-w-0 pr-16"> {/* pr-16 reserves space so name doesn't go under buttons */}
+          <p className="text-sm font-bold text-gray-900 truncate">{emp.name}</p>
+          <p className="text-xs text-gray-400 truncate font-medium">{emp.email}</p>
         </div>
       </div>
 

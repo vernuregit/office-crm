@@ -69,12 +69,7 @@ const fmtDate = (d) =>
 
 
 const avatarColors = [
-  "from-violet-500 to-purple-600",
-  "from-teal-500 to-emerald-600",
-  "from-rose-500 to-pink-600",
-  "from-amber-500 to-orange-600",
-  "from-sky-500 to-blue-600",
-  "from-fuchsia-500 to-violet-600",
+ 
 ];
 
 
@@ -392,7 +387,7 @@ const LeaveCard = ({ req, onApprove, onReject, onDelete }) => {
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${gradColor} flex items-center justify-center flex-shrink-0 text-white text-sm font-black shadow-lg`}>
+            <div className={`w-11 h-11 rounded-2xl bg-[#1D7872] flex items-center justify-center flex-shrink-0 text-white text-sm font-black shadow-lg`}>
               {initials}
             </div>
             <div className="min-w-0">
@@ -702,11 +697,11 @@ export default function LeaveRequests() {
 
       {/* ── Pending Alert ── */}
       {counts.pending > 0 && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl px-5 py-4 mb-6 flex items-center gap-3 shadow-sm">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-200">
+        <div className="bg-gradient-to-r from-green-50 to-green-50 border border-green-200 rounded-2xl px-5 py-4 mb-6 flex items-center gap-3 shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-[#1D7872] flex items-center justify-center flex-shrink-0 ">
             <Clock size={14} className="text-white" />
           </div>
-          <p className="text-sm text-amber-800 font-semibold">
+          <p className="text-sm text-green-800 font-semibold">
             <span className="font-black">{counts.pending}</span> request{counts.pending > 1 ? "s are" : " is"} awaiting your approval
           </p>
         </div>

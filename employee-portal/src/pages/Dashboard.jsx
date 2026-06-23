@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../firebase/config";
 import useAuthStore from "../store/authStore";
 import useWorkTimer from "../hooks/useWorkTimer";
@@ -10,7 +18,7 @@ import {
   CheckCircle2, Loader, Timer, Calendar,
   TrendingUp, ChevronRight, Flag,
   AlertCircle, Coffee,
-  UserCheck, Activity,
+  UserCheck,
 } from "lucide-react";
 
 // ─── Greeting ─────────────────────────────────────────────────────
@@ -23,7 +31,10 @@ const getGreeting = () => {
 
 const todayLabel = () =>
   new Date().toLocaleDateString("en-IN", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -44,105 +55,183 @@ const fmtMins = (mins) => {
   return `${Math.floor(mins / 60)}h ${Math.round(mins % 60)}m`;
 };
 
-const workingDaysInRange = (days) => {
-  const result = [], now = new Date();
-  for (let i = 0; i < days; i++) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - i);
+const workingDaysInCurrentMonth = () => {
+  const result = [];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const today = now.getDate();
+
+  for (let day = 1; day <= today; day++) {
+    const d = new Date(year, month, day);
     if (d.getDay() !== 0) result.push(dayKey(d.getTime()));
   }
+
+  return result;
+};
+
+const getCurrentMonthDateKeys = () => {
+  const result = [];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const today = now.getDate();
+
+  for (let day = 1; day <= today; day++) {
+    result.push(
+      `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+    );
+  }
+
   return result;
 };
 
 // ─── Office Time Config ───────────────────────────────────────────
-// Office time: 10:30 AM
-// Grace window: 10:30 AM – 10:59 AM → Present (on-time)
-// 11:00 AM or later → Late
-const OFFICE_START_MINS = 630;   // 10:30 AM
-const LATE_THRESHOLD_MINS = 660; // 11:00 AM — at or after this = late
+const OFFICE_START_MINS = 630;
+const LATE_THRESHOLD_MINS = 660;
 
-const computeAttendanceStats = (sessions) => {
-  if (!sessions.length) return {
-    onTime: 0, late: 0, absent: 0,
-    avgHours: "—", avgCheckin: "—", avgCheckout: "—", onTimeRate: "—",
-    presentDays: 0,
-  };
+// ─── Attendance Stats ─────────────────────────────────────────────
+const computeAttendanceStats = (sessions, overrideMap = {}) => {
+  const allWorkingDays = workingDaysInCurrentMonth();
 
   const byDay = {};
   sessions.forEach((s) => {
     const startMs = toMs(s.startTime);
     if (!startMs) return;
     const key = dayKey(startMs);
-    if (!byDay[key] || toMs(s.startTime) > toMs(byDay[key].startTime)) byDay[key] = s;
+
+    if (!byDay[key] || toMs(s.startTime) < toMs(byDay[key].startTime)) {
+      byDay[key] = s;
+    }
   });
 
-  const allWorkingDays = workingDaysInRange(30);
-  const presentDays = Object.keys(byDay);
-  const absentCount = allWorkingDays.filter((d) => !presentDays.includes(d)).length;
+  let onTimeCount = 0;
+  let lateCount = 0;
+  let absentCount = 0;
+  let presentDays = 0;
 
-  let onTimeCount = 0, lateCount = 0;
-  let totalCheckinMins = 0, totalCheckoutMins = 0, totalDurationMins = 0;
-  let checkinCount = 0, checkoutCount = 0, durationCount = 0;
+  let totalCheckinMins = 0;
+  let totalCheckoutMins = 0;
+  let totalDurationMins = 0;
+  let checkinCount = 0;
+  let checkoutCount = 0;
+  let durationCount = 0;
 
-  Object.values(byDay).forEach((s) => {
-    const startMs = toMs(s.startTime);
-    const endMs = toMs(s.endTime);
-    if (!startMs) return;
+  allWorkingDays.forEach((day) => {
+    const override = overrideMap[day];
+    const session = byDay[day];
 
-    const checkinMins =
-      new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
+    if (override?.status === "absent") {
+      absentCount++;
+      return;
+    }
 
-    // ✅ On-time: up to 10:59 AM (659 mins). Late: 11:00 AM+ (660 mins)
-    checkinMins < LATE_THRESHOLD_MINS ? onTimeCount++ : lateCount++;
+    if (override?.status === "present") {
+      presentDays++;
 
-    totalCheckinMins += checkinMins;
-    checkinCount++;
+      const startMs = toMs(session?.startTime);
+      const endMs = toMs(session?.endTime);
 
-    if (endMs) {
-      totalCheckoutMins += new Date(endMs).getHours() * 60 + new Date(endMs).getMinutes();
-      checkoutCount++;
+      if (startMs) {
+        const startDate = new Date(startMs);
+        const checkinMins = startDate.getHours() * 60 + startDate.getMinutes();
 
-      const totalBreakMins = Number(s.totalBreakSeconds || 0) / 60;
-      const dur = (endMs - startMs) / 60000 - totalBreakMins;
-      if (dur > 0 && dur < 1440) {
-        totalDurationMins += dur;
-        durationCount++;
+        if (checkinMins < LATE_THRESHOLD_MINS) onTimeCount++;
+        else lateCount++;
+
+        totalCheckinMins += checkinMins;
+        checkinCount++;
+
+        if (endMs) {
+          const endDate = new Date(endMs);
+          totalCheckoutMins += endDate.getHours() * 60 + endDate.getMinutes();
+          checkoutCount++;
+
+          const totalBreakMins = Number(session.totalBreakSeconds || 0) / 60;
+          const dur = (endMs - startMs) / 60000 - totalBreakMins;
+          if (dur > 0 && dur < 1440) {
+            totalDurationMins += dur;
+            durationCount++;
+          }
+        }
+      } else {
+        onTimeCount++;
       }
+
+      return;
+    }
+
+    if (session) {
+      presentDays++;
+
+      const startMs = toMs(session.startTime);
+      const endMs = toMs(session.endTime);
+
+      if (startMs) {
+        const startDate = new Date(startMs);
+        const checkinMins = startDate.getHours() * 60 + startDate.getMinutes();
+
+        if (checkinMins < LATE_THRESHOLD_MINS) onTimeCount++;
+        else lateCount++;
+
+        totalCheckinMins += checkinMins;
+        checkinCount++;
+
+        if (endMs) {
+          const endDate = new Date(endMs);
+          totalCheckoutMins += endDate.getHours() * 60 + endDate.getMinutes();
+          checkoutCount++;
+
+          const totalBreakMins = Number(session.totalBreakSeconds || 0) / 60;
+          const dur = (endMs - startMs) / 60000 - totalBreakMins;
+          if (dur > 0 && dur < 1440) {
+            totalDurationMins += dur;
+            durationCount++;
+          }
+        }
+      }
+    } else {
+      absentCount++;
     }
   });
 
   const fmtMinOfDay = (m) => {
     const d = new Date();
     d.setHours(Math.floor(m / 60) % 24, Math.round(m % 60), 0, 0);
-    return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    return d.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   return {
     onTime: onTimeCount,
     late: lateCount,
     absent: absentCount,
-    presentDays: presentDays.length,
+    presentDays,
     avgHours: fmtMins(durationCount > 0 ? totalDurationMins / durationCount : 0),
     avgCheckin: checkinCount > 0 ? fmtMinOfDay(totalCheckinMins / checkinCount) : "—",
     avgCheckout: checkoutCount > 0 ? fmtMinOfDay(totalCheckoutMins / checkoutCount) : "—",
-    onTimeRate: checkinCount > 0 ? ((onTimeCount / checkinCount) * 100).toFixed(2) + "%" : "—",
+    onTimeRate:
+      checkinCount > 0
+        ? ((onTimeCount / checkinCount) * 100).toFixed(2) + "%"
+        : "—",
   };
 };
 
-// ─── Attendance Over Time (weekly buckets, last 4 weeks) ──────────
-const buildAttendanceOverTime = (sessions) => {
+const buildAttendanceOverTime = (sessions, overrideMap = {}) => {
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
-  // Build 4 weekly buckets: Week 1 = oldest, Week 4 = most recent
   const weeks = Array.from({ length: 4 }, (_, i) => {
     const endDate = new Date(today);
     endDate.setDate(today.getDate() - i * 7);
+
     const startDate = new Date(endDate);
     startDate.setDate(endDate.getDate() - 6);
     startDate.setHours(0, 0, 0, 0);
 
-    // Working days in this week (Mon–Sat, no Sunday)
     const workingDays = [];
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       if (d.getDay() !== 0) workingDays.push(dayKey(d.getTime()));
@@ -151,35 +240,58 @@ const buildAttendanceOverTime = (sessions) => {
     return { label: `W${4 - i}`, startDate, endDate, workingDays };
   }).reverse();
 
-  // Map sessions by day
   const byDay = {};
   sessions.forEach((s) => {
     const startMs = toMs(s.startTime);
     if (!startMs) return;
     const key = dayKey(startMs);
-    if (!byDay[key]) byDay[key] = s;
+
+    if (!byDay[key] || toMs(s.startTime) < toMs(byDay[key].startTime)) {
+      byDay[key] = s;
+    }
   });
 
   const nowMs = Date.now();
 
   return weeks.map((week) => {
-    let present = 0, late = 0, absent = 0;
+    let present = 0;
+    let late = 0;
+    let absent = 0;
 
     week.workingDays.forEach((dk) => {
-      const dayDate = new Date(dk + "T00:00:00");
+      const dayDate = new Date(`${dk}T00:00:00`);
       const isFuture = dayDate.getTime() > nowMs;
-      if (isFuture) return; // skip future days
+      if (isFuture) return;
 
+      const override = overrideMap[dk];
       const session = byDay[dk];
+
+      if (override?.status === "absent") {
+        absent++;
+        return;
+      }
+
+      if (override?.status === "present") {
+        if (session?.startTime) {
+          const startMs = toMs(session.startTime);
+          const checkinMins =
+            new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
+
+          if (checkinMins < LATE_THRESHOLD_MINS) present++;
+          else late++;
+        } else {
+          present++;
+        }
+        return;
+      }
+
       if (session) {
         const startMs = toMs(session.startTime);
         const checkinMins =
           new Date(startMs).getHours() * 60 + new Date(startMs).getMinutes();
-        if (checkinMins < LATE_THRESHOLD_MINS) {
-          present++;
-        } else {
-          late++;
-        }
+
+        if (checkinMins < LATE_THRESHOLD_MINS) present++;
+        else late++;
       } else {
         absent++;
       }
@@ -217,12 +329,11 @@ const AttendanceOverTimeChart = ({ data }) => {
         {data.map((week) => {
           const total = week.present + week.late + week.absent;
           const presentPct = total > 0 ? (week.present / maxVal) * 100 : 0;
-          const latePct    = total > 0 ? (week.late    / maxVal) * 100 : 0;
-          const absentPct  = total > 0 ? (week.absent  / maxVal) * 100 : 0;
+          const latePct = total > 0 ? (week.late / maxVal) * 100 : 0;
+          const absentPct = total > 0 ? (week.absent / maxVal) * 100 : 0;
 
           return (
             <div key={week.label} className="flex-1 flex flex-col items-center gap-1">
-              {/* Stacked bar */}
               <div className="w-full flex flex-col justify-end rounded-lg overflow-hidden h-20 gap-px bg-gray-50 border border-gray-100">
                 {week.absent > 0 && (
                   <div
@@ -253,12 +364,11 @@ const AttendanceOverTimeChart = ({ data }) => {
         })}
       </div>
 
-      {/* Summary row */}
       <div className="mt-3 pt-3 border-t border-gray-50 grid grid-cols-3 gap-2">
         {[
           { label: "Total Present", val: data.reduce((s, d) => s + d.present, 0), color: "text-emerald-600" },
-          { label: "Total Late",    val: data.reduce((s, d) => s + d.late, 0),    color: "text-amber-500"   },
-          { label: "Total Absent",  val: data.reduce((s, d) => s + d.absent, 0),  color: "text-red-500"     },
+          { label: "Total Late", val: data.reduce((s, d) => s + d.late, 0), color: "text-amber-500" },
+          { label: "Total Absent", val: data.reduce((s, d) => s + d.absent, 0), color: "text-red-500" },
         ].map((item) => (
           <div key={item.label} className="text-center">
             <p className={`text-base font-black tabular-nums ${item.color}`}>{item.val}</p>
@@ -272,27 +382,31 @@ const AttendanceOverTimeChart = ({ data }) => {
 
 // ─── Task helpers ─────────────────────────────────────────────────
 const taskBadge = (s) => {
-  if (s === "completed")   return "bg-[#E1F5EE] text-[#085041] border border-[#5DCAA5]";
+  if (s === "completed") return "bg-[#E1F5EE] text-[#085041] border border-[#5DCAA5]";
   if (s === "in-progress") return "bg-[#FAEEDA] text-[#633806] border border-[#EF9F27]";
   return "bg-[#EEEDFE] text-[#3C3489] border border-[#AFA9EC]";
 };
+
 const taskBadgeLabel = (s) => {
-  if (s === "completed")   return "Completed";
+  if (s === "completed") return "Completed";
   if (s === "in-progress") return "In progress";
   return "To do";
 };
+
 const priorityFlagClass = (p) => {
-  if (p === "high")   return "bg-[#FCEBEB] text-[#A32D2D]";
+  if (p === "high") return "bg-[#FCEBEB] text-[#A32D2D]";
   if (p === "medium") return "bg-[#FAEEDA] text-[#854F0B]";
   return "bg-[#EAF3DE] text-[#3B6D11]";
 };
+
 const priorityTextClass = (p) => {
-  if (p === "high")   return "text-[#A32D2D]";
+  if (p === "high") return "text-[#A32D2D]";
   if (p === "medium") return "text-[#854F0B]";
   return "text-[#3B6D11]";
 };
+
 const priorityLabel = (p) => {
-  if (p === "high")   return "High priority";
+  if (p === "high") return "High priority";
   if (p === "medium") return "Medium priority";
   return "Low priority";
 };
@@ -311,17 +425,26 @@ const StatusBarCard = ({ icon: Icon, iconBg, iconColor, label, value, valueColor
   </div>
 );
 
-// ─── Donut (Today progress) ───────────────────────────────────────
+// ─── Today Progress Donut ─────────────────────────────────────────
 const ProgressDonut = ({ pct, activeBreak, cx = 52, cy = 52, r = 40, stroke = 10 }) => {
   const circ = 2 * Math.PI * r;
   const fill = (pct / 100) * circ;
   const color = pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : pct > 50 ? "#1D7872" : "#EF9F27";
+
   return (
     <svg width={cx * 2} height={cy * 2} viewBox={`0 0 ${cx * 2} ${cy * 2}`}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={stroke} />
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={stroke}
-        strokeDasharray={`${fill} ${circ - fill}`} strokeLinecap="round"
-        style={{ transform: "rotate(-90deg)", transformOrigin: `${cx}px ${cy}px` }} />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth={stroke}
+        strokeDasharray={`${fill} ${circ - fill}`}
+        strokeLinecap="round"
+        style={{ transform: "rotate(-90deg)", transformOrigin: `${cx}px ${cy}px` }}
+      />
       <text x={cx} y={cy - 4} textAnchor="middle" fontSize="18" fontWeight="800" fill="#111827">{pct}%</text>
       <text x={cx} y={cy + 13} textAnchor="middle" fontSize="9" fill="#9CA3AF">in office</text>
     </svg>
@@ -332,21 +455,31 @@ const ProgressDonut = ({ pct, activeBreak, cx = 52, cy = 52, r = 40, stroke = 10
 const DonutChart = ({ segments, total, cx = 52, cy = 52, r = 38, stroke = 14 }) => {
   const circumference = 2 * Math.PI * r;
   let cumulDash = 0;
+
   return (
     <svg width={cx * 2} height={cy * 2} viewBox={`0 0 ${cx * 2} ${cy * 2}`}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={stroke} />
       {segments.map((seg, i) => {
-        const pct  = total > 0 ? seg.value / total : 0;
+        const pct = total > 0 ? seg.value / total : 0;
         const dash = pct * circumference;
-        const arc  = { dash, offset: cumulDash };
+        const arc = { dash, offset: cumulDash };
         cumulDash += dash;
         if (!seg.value) return null;
+
         return (
-          <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={seg.color} strokeWidth={stroke}
+          <circle
+            key={i}
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke={seg.color}
+            strokeWidth={stroke}
             strokeDasharray={`${arc.dash} ${circumference - arc.dash}`}
             strokeDashoffset={-(arc.offset) + circumference / 4}
             strokeLinecap="butt"
-            style={{ transform: "rotate(-90deg)", transformOrigin: `${cx}px ${cy}px` }} />
+            style={{ transform: "rotate(-90deg)", transformOrigin: `${cx}px ${cy}px` }}
+          />
         );
       })}
       <text x={cx} y={cy - 5} textAnchor="middle" fontSize="17" fontWeight="700" fill="#111827">{total}</text>
@@ -362,9 +495,8 @@ const TodayCard = ({
   formatTime, elapsedSeconds,
   activeBreak, breakSeconds, startBreak, endBreak,
 }) => {
-  const pct      = Math.min(Math.round((todayMins / workDayMins) * 100), 100);
+  const pct = Math.min(Math.round((todayMins / workDayMins) * 100), 100);
   const isAbsent = todayMins === 0 && !activeSession;
-  const timeLeft = workDayMins - todayMins;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4">
@@ -391,11 +523,13 @@ const TodayCard = ({
             {fmtMins(todayMins)}
           </p>
           <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2 mb-3">
-            <div className="h-1.5 rounded-full transition-all duration-500"
+            <div
+              className="h-1.5 rounded-full transition-all duration-500"
               style={{
                 width: `${pct}%`,
-                background: pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : "#1D7872"
-              }} />
+                background: pct >= 100 ? "#1D9E75" : activeBreak ? "#F97316" : "#1D7872",
+              }}
+            />
           </div>
           {activeSession && !activeBreak && (
             <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs text-amber-700 font-semibold mb-2">
@@ -418,23 +552,31 @@ const TodayCard = ({
       {timerLoading ? (
         <div className="h-9 bg-gray-100 rounded-xl animate-pulse" />
       ) : !activeSession ? (
-        <button onClick={clockIn}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1D7872] text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer shadow-sm">
+        <button
+          onClick={clockIn}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#1D7872] text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer shadow-sm"
+        >
           <LogIn size={15} /> Check In
         </button>
       ) : activeBreak ? (
-        <button onClick={() => endBreak()}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer">
+        <button
+          onClick={() => endBreak()}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer"
+        >
           <LogIn size={15} /> Resume Work
         </button>
       ) : (
         <div className="flex gap-2">
-          <button onClick={startBreak}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold hover:bg-orange-100 transition-colors active:scale-95 cursor-pointer">
+          <button
+            onClick={startBreak}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold hover:bg-orange-100 transition-colors active:scale-95 cursor-pointer"
+          >
             <Coffee size={13} /> Break
           </button>
-          <button onClick={clockOut}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer">
+          <button
+            onClick={clockOut}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-500 text-white text-xs font-bold hover:opacity-90 transition-opacity active:scale-95 cursor-pointer"
+          >
             <LogOut size={13} /> Check Out
           </button>
         </div>
@@ -445,10 +587,10 @@ const TodayCard = ({
 
 // ─── My Attendance Card ───────────────────────────────────────────
 const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
-  const total    = attendanceStats.onTime + attendanceStats.late + attendanceStats.absent;
+  const total = attendanceStats.onTime + attendanceStats.late + attendanceStats.absent;
   const segments = [
     { value: attendanceStats.onTime, color: "#1D9E75" },
-    { value: attendanceStats.late,   color: "#EF9F27" },
+    { value: attendanceStats.late, color: "#F97316" },
     { value: attendanceStats.absent, color: "#EF4444" },
   ];
 
@@ -456,8 +598,10 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
     <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-gray-800 text-sm">My Attendance</h3>
-        <button onClick={onViewStats}
-          className="text-xs text-[#1D7872] font-semibold hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0">
+        <button
+          onClick={onViewStats}
+          className="text-xs text-[#1D7872] font-semibold hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
+        >
           View All
         </button>
       </div>
@@ -475,11 +619,15 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
           <div className="flex flex-col gap-3 flex-1 min-w-0">
             {[
               { color: "#1D9E75", label: "Present Days", val: attendanceStats.presentDays },
-              { color: "#EF4444", label: "Absent Days",  val: attendanceStats.absent      },
-              { color: "#1D7872", label: "On-time Rate", val: attendanceStats.onTimeRate  },
-              { color: "#7F77DD", label: "Attendance %", val: total > 0
-                  ? ((attendanceStats.presentDays / (attendanceStats.presentDays + attendanceStats.absent)) * 100).toFixed(0) + "%"
-                  : "—" },
+              { color: "#EF4444", label: "Absent Days", val: attendanceStats.absent },
+              {
+                color: "#F97316",
+                label: "Attendance %",
+                val:
+                  total > 0
+                    ? ((attendanceStats.presentDays / (attendanceStats.presentDays + attendanceStats.absent)) * 100).toFixed(0) + "%"
+                    : "—",
+              },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: item.color }} />
@@ -488,15 +636,6 @@ const MyAttendanceCard = ({ attendanceStats, loading, onViewStats }) => {
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {!loading && attendanceStats.onTimeRate !== "—" && (
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
-          <CheckCircle2 size={13} className="text-emerald-500 flex-shrink-0" />
-          <p className="text-xs text-emerald-700 font-medium">
-            On-time: arrive by <strong>10:59 AM</strong> · Late from <strong>11:00 AM</strong>
-          </p>
         </div>
       )}
     </div>
@@ -510,123 +649,225 @@ const Dashboard = () => {
   const {
     activeSession, activeBreak,
     elapsedSeconds, breakSeconds,
-    todayMinutes, weekMinutes,
+    todayMinutes,
     loading: timerLoading,
     clockIn, clockOut,
     startBreak, endBreak,
-    formatTime, formatMinutes,
+    formatTime,
   } = useWorkTimer();
 
-  const [tasks,             setTasks]            = useState([]);
-  const [taskLoading,       setTaskLoading]       = useState(true);
-  const [stats,             setStats]             = useState({ total: 0, todo: 0, inProgress: 0, completed: 0 });
-  const [attendanceStats,   setAttendanceStats]   = useState({
-    onTime: 0, late: 0, absent: 0, presentDays: 0,
-    avgHours: "—", avgCheckin: "—", avgCheckout: "—", onTimeRate: "—",
+  const [tasks, setTasks] = useState([]);
+  const [taskLoading, setTaskLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, todo: 0, inProgress: 0, completed: 0 });
+  const [attendanceStats, setAttendanceStats] = useState({
+    onTime: 0,
+    late: 0,
+    absent: 0,
+    presentDays: 0,
+    avgHours: "—",
+    avgCheckin: "—",
+    avgCheckout: "—",
+    onTimeRate: "—",
   });
   const [attendanceLoading, setAttendanceLoading] = useState(true);
-  const [sessions,          setSessions]          = useState([]);
-  const [overTimeData,      setOverTimeData]      = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [overrideMap, setOverrideMap] = useState({});
+  const [overTimeData, setOverTimeData] = useState([]);
 
   // ── Fetch Tasks ───────────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
+
     const fetchTasks = async () => {
       setTaskLoading(true);
       try {
-        const snap = await getDocs(query(collection(db, "tasks"), where("assignedTo", "==", user.uid)));
-        const all  = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const snap = await getDocs(
+          query(collection(db, "tasks"), where("assignedTo", "==", user.uid))
+        );
+        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setTasks(all);
         setStats({
-          total:      all.length,
-          todo:       all.filter((t) => (t.status || "to-do") === "to-do").length,
+          total: all.length,
+          todo: all.filter((t) => (t.status || "to-do") === "to-do").length,
           inProgress: all.filter((t) => t.status === "in-progress").length,
-          completed:  all.filter((t) => t.status === "completed").length,
+          completed: all.filter((t) => t.status === "completed").length,
         });
-      } catch (err) { console.error("Tasks fetch error:", err); }
+      } catch (err) {
+        console.error("Tasks fetch error:", err);
+      }
       setTaskLoading(false);
     };
+
     fetchTasks();
   }, [user]);
 
-  // ── Fetch Attendance ──────────────────────────────────────────
+  // ── Fetch Attendance + Overrides ──────────────────────────────
   useEffect(() => {
     if (!user?.uid) return;
+
     const fetchAttendance = async () => {
       setAttendanceLoading(true);
-      try {
-        const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - 30);
-        const snap = await getDocs(query(
-          collection(db, "timeLogs", user.uid, "sessions"),
-          orderBy("startTime", "desc")
-        ));
-        const data = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter((s) => { const ms = toMs(s.startTime); return ms && ms >= cutoff.getTime(); });
 
-        setSessions(data);
-        setAttendanceStats(computeAttendanceStats(data));
-        setOverTimeData(buildAttendanceOverTime(data));
-      } catch (err) { console.error("Attendance fetch error:", err); }
+      try {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const monthStart = new Date(year, month, 1, 0, 0, 0, 0);
+
+        const snap = await getDocs(
+          query(
+            collection(db, "timeLogs", user.uid, "sessions"),
+            orderBy("startTime", "desc")
+          )
+        );
+
+        const sessionData = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((s) => {
+            const ms = toMs(s.startTime);
+            return ms && ms >= monthStart.getTime();
+          });
+
+        const dateKeys = getCurrentMonthDateKeys();
+
+        const overrideResults = await Promise.allSettled(
+          dateKeys.map((dateKey) =>
+            getDoc(doc(db, "attendanceOverrides", `${user.uid}_${dateKey}`))
+          )
+        );
+
+        const nextOverrideMap = {};
+
+        overrideResults.forEach((result, index) => {
+          const dateKey = dateKeys[index];
+
+          if (result.status === "fulfilled") {
+            const snap = result.value;
+            if (snap.exists() && snap.data()?.status) {
+              nextOverrideMap[dateKey] = snap.data();
+            }
+          } else {
+            
+          }
+        });
+
+        setSessions(sessionData);
+        setOverrideMap(nextOverrideMap);
+        setAttendanceStats(computeAttendanceStats(sessionData, nextOverrideMap));
+        setOverTimeData(buildAttendanceOverTime(sessionData, nextOverrideMap));
+      } catch (err) {
+        console.error("Attendance fetch error:", err);
+
+        try {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const monthStart = new Date(year, month, 1, 0, 0, 0, 0);
+
+          const snap = await getDocs(
+            query(
+              collection(db, "timeLogs", user.uid, "sessions"),
+              orderBy("startTime", "desc")
+            )
+          );
+
+          const sessionData = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter((s) => {
+              const ms = toMs(s.startTime);
+              return ms && ms >= monthStart.getTime();
+            });
+
+          setSessions(sessionData);
+          setOverrideMap({});
+          setAttendanceStats(computeAttendanceStats(sessionData, {}));
+          setOverTimeData(buildAttendanceOverTime(sessionData, {}));
+        } catch (fallbackErr) {
+          console.error("Attendance fallback fetch error:", fallbackErr);
+        }
+      }
+
       setAttendanceLoading(false);
     };
+
     fetchAttendance();
   }, [user?.uid]);
 
   // ── Derived values ────────────────────────────────────────────
-  const todayTasks    = tasks.filter((t) => t.status !== "completed").slice(0, 5);
+  const todayTasks = tasks.filter((t) => t.status !== "completed").slice(0, 5);
   const { text: greetText } = getGreeting();
-  const workDayMins   = 450;
+  const workDayMins = 450;
   const activeElapsed = activeSession ? Math.floor(elapsedSeconds / 60) : 0;
   const totalTodayMins = todayMinutes + activeElapsed;
 
   const todayKey = dayKey(Date.now());
+  const todayOverride = overrideMap[todayKey];
   const todaySession = sessions.find((s) => {
     const ms = toMs(s.startTime);
     return ms && dayKey(ms) === todayKey;
   });
 
-  const clockInTime = todaySession
-    ? new Date(toMs(todaySession.startTime)).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
+  const clockInTime = todaySession?.startTime
+    ? new Date(toMs(todaySession.startTime)).toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
     : activeSession
-      ? new Date(toMs(activeSession.startTime) || Date.now()).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
+      ? new Date(toMs(activeSession.startTime) || Date.now()).toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
       : "—";
 
   const clockOutTime = todaySession?.endTime
-    ? new Date(toMs(todaySession.endTime)).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })
-    : activeSession ? "Active" : "—";
+    ? new Date(toMs(todaySession.endTime)).toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : activeSession
+      ? "Active"
+      : "—";
 
   const lateBy = (() => {
+    if (todayOverride?.status === "absent") return null;
     if (!clockInTime || clockInTime === "—" || clockInTime === "Active") return null;
+
     const [time, period] = clockInTime.split(" ");
     let [h, m] = time.split(":").map(Number);
+
     if (period === "PM" && h !== 12) h += 12;
     if (period === "AM" && h === 12) h = 0;
+
     const totalMins = h * 60 + m;
-    // Late by is calculated from office start (10:30), not from 11:00
     const diff = totalMins - OFFICE_START_MINS;
+
     if (diff <= 0) return null;
     return `${Math.floor(diff / 60) > 0 ? Math.floor(diff / 60) + "h " : ""}${diff % 60}min`;
   })();
 
-  const status = !activeSession && totalTodayMins === 0
-    ? "Absent"
-    : activeBreak  ? "On Break"
-    : activeSession ? "Present"
-    : "Checked Out";
+  const status = (() => {
+    if (todayOverride?.status === "absent") return "Absent";
+    if (todayOverride?.status === "present") {
+      return activeBreak ? "On Break" : activeSession ? "Present" : "Checked Out";
+    }
+    if (!activeSession && totalTodayMins === 0) return "Absent";
+    if (activeBreak) return "On Break";
+    if (activeSession) return "Present";
+    return "Checked Out";
+  })();
 
   const statusStyle = {
-    Absent:         "text-red-500",
-    "On Break":     "text-orange-500",
-    Present:        "text-emerald-500",
-    "Checked Out":  "text-blue-500",
+    Absent: "text-red-500",
+    "On Break": "text-orange-500",
+    Present: "text-emerald-500",
+    "Checked Out": "text-blue-500",
   }[status] || "text-gray-500";
 
   return (
     <Layout title="Dashboard">
-
-      {/* ── Greeting Header ───────────────────────────────────── */}
       <div className="flex items-start justify-between mb-5 p-5">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 leading-tight">
@@ -643,11 +884,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── Top Status Bar ────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-5 px-5">
         <StatusBarCard
           icon={UserCheck}
-          iconBg="bg-emerald-50" iconColor="text-emerald-500"
+          iconBg="bg-emerald-50"
+          iconColor="text-emerald-500"
           label="Status"
           value={status}
           valueColor={statusStyle}
@@ -655,22 +896,25 @@ const Dashboard = () => {
         />
         <StatusBarCard
           icon={LogIn}
-          iconBg="bg-blue-50" iconColor="text-blue-500"
+          iconBg="bg-blue-50"
+          iconColor="text-blue-500"
           label="Clock In"
-          value={clockInTime}
+          value={todayOverride?.status === "absent" ? "—" : clockInTime}
         />
         <StatusBarCard
           icon={LogOut}
-          iconBg="bg-purple-50" iconColor="text-purple-500"
+          iconBg="bg-purple-50"
+          iconColor="text-purple-500"
           label="Clock Out"
-          value={clockOutTime}
+          value={todayOverride?.status === "absent" ? "—" : clockOutTime}
           valueColor={clockOutTime === "Active" ? "text-emerald-500" : "text-gray-800"}
         />
         <StatusBarCard
           icon={Timer}
-          iconBg="bg-amber-50" iconColor="text-amber-500"
+          iconBg="bg-amber-50"
+          iconColor="text-amber-500"
           label="Worked Hours"
-          value={fmtMins(totalTodayMins)}
+          value={todayOverride?.status === "absent" ? "0h 0m" : fmtMins(totalTodayMins)}
           valueColor="text-[#1D7872]"
         />
         <StatusBarCard
@@ -678,31 +922,27 @@ const Dashboard = () => {
           iconBg={lateBy ? "bg-red-50" : "bg-gray-50"}
           iconColor={lateBy ? "text-red-400" : "text-gray-300"}
           label="Late By"
-          value={lateBy || "On time"}
+          value={todayOverride?.status === "absent" ? "—" : (lateBy || "On time")}
           valueColor={lateBy ? "text-red-500" : "text-emerald-500"}
         />
       </div>
 
-      {/* ── Main Grid ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5 px-5">
-
-        {/* Today Overview */}
         <TodayCard
-          todayMins={totalTodayMins}
+          todayMins={todayOverride?.status === "absent" ? 0 : totalTodayMins}
           workDayMins={workDayMins}
-          activeSession={activeSession}
-          activeBreak={activeBreak}
-          breakSeconds={breakSeconds}
+          activeSession={todayOverride?.status === "absent" ? null : activeSession}
+          activeBreak={todayOverride?.status === "absent" ? false : activeBreak}
+          breakSeconds={todayOverride?.status === "absent" ? 0 : breakSeconds}
           clockIn={clockIn}
           clockOut={clockOut}
           startBreak={startBreak}
           endBreak={endBreak}
           timerLoading={timerLoading}
           formatTime={formatTime}
-          elapsedSeconds={elapsedSeconds}
+          elapsedSeconds={todayOverride?.status === "absent" ? 0 : elapsedSeconds}
         />
 
-        {/* 2×2 Avg Stats */}
         <div className="grid grid-cols-2 gap-3 content-start">
           {attendanceLoading ? (
             [...Array(4)].map((_, i) => (
@@ -711,10 +951,10 @@ const Dashboard = () => {
           ) : (
             <>
               {[
-                { icon: Timer,      iconBg: "bg-blue-50",    iconColor: "text-[#1D7872]",   label: "Avg hours / day", value: attendanceStats.avgHours    },
-                { icon: LogIn,      iconBg: "bg-emerald-50", iconColor: "text-emerald-600", label: "Avg check-in",    value: attendanceStats.avgCheckin  },
-                { icon: TrendingUp, iconBg: "bg-green-50",   iconColor: "text-green-600",   label: "On-time arrival", value: attendanceStats.onTimeRate,  valueColor: "text-emerald-500" },
-                { icon: LogOut,     iconBg: "bg-purple-50",  iconColor: "text-purple-600",  label: "Avg check-out",   value: attendanceStats.avgCheckout },
+                { icon: Timer, iconBg: "bg-blue-50", iconColor: "text-[#1D7872]", label: "Avg hours / day", value: attendanceStats.avgHours },
+                { icon: LogIn, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", label: "Avg check-in", value: attendanceStats.avgCheckin },
+                { icon: TrendingUp, iconBg: "bg-green-50", iconColor: "text-green-600", label: "Avg arrival time", value: attendanceStats.avgCheckin, valueColor: "text-emerald-500" },
+                { icon: LogOut, iconBg: "bg-purple-50", iconColor: "text-purple-600", label: "Avg check-out", value: attendanceStats.avgCheckout },
               ].map((c, i) => (
                 <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col gap-2 shadow-sm">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${c.iconBg}`}>
@@ -728,7 +968,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Attendance Donut */}
         <MyAttendanceCard
           attendanceStats={attendanceStats}
           loading={attendanceLoading}
@@ -736,7 +975,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* ── Attendance Over Time ───────────────────────────────── */}
+      {/* Optional chart */}
       {/* <div className="mb-5 px-5">
         {attendanceLoading ? (
           <div className="h-48 bg-gray-100 rounded-2xl animate-pulse" />
@@ -745,13 +984,12 @@ const Dashboard = () => {
         )}
       </div> */}
 
-      {/* ── Task Stats Row ─────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5 px-5">
         {[
-          { Icon: ClipboardList, label: "Total Tasks",  value: stats.total,     color: "text-[#1D7872]",   bg: "bg-blue-50"    },
-          { Icon: AlertCircle,   label: "To Do",        value: stats.todo,      color: "text-violet-600",  bg: "bg-violet-50"  },
-          { Icon: Loader,        label: "In Progress",  value: stats.inProgress,color: "text-amber-600",   bg: "bg-amber-50"   },
-          { Icon: CheckCircle2,  label: "Completed",    value: stats.completed, color: "text-emerald-600", bg: "bg-emerald-50" },
+          { Icon: ClipboardList, label: "Total Tasks", value: stats.total, color: "text-[#1D7872]", bg: "bg-blue-50" },
+          { Icon: AlertCircle, label: "To Do", value: stats.todo, color: "text-violet-600", bg: "bg-violet-50" },
+          { Icon: Loader, label: "In Progress", value: stats.inProgress, color: "text-amber-600", bg: "bg-amber-50" },
+          { Icon: CheckCircle2, label: "Completed", value: stats.completed, color: "text-emerald-600", bg: "bg-emerald-50" },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
             <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center flex-shrink-0`}>
@@ -765,15 +1003,16 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* ── Pending Tasks ─────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm mx-5 mb-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-bold text-gray-900 text-[15px]">Pending Tasks</h3>
             <p className="text-xs text-gray-400 mt-0.5">Tasks assigned to you</p>
           </div>
-          <button onClick={() => navigate("/tasks")}
-            className="text-[#1D7872] text-sm font-semibold cursor-pointer inline-flex items-center gap-1 hover:opacity-75 transition-opacity border-none bg-transparent p-0">
+          <button
+            onClick={() => navigate("/tasks")}
+            className="text-[#1D7872] text-sm font-semibold cursor-pointer inline-flex items-center gap-1 hover:opacity-75 transition-opacity border-none bg-transparent p-0"
+          >
             View all <ChevronRight size={13} />
           </button>
         </div>
@@ -791,8 +1030,11 @@ const Dashboard = () => {
         ) : (
           <div className="flex flex-col gap-0.5">
             {todayTasks.map((task) => (
-              <div key={task.id} onClick={() => navigate("/tasks")}
-                className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer gap-3">
+              <div
+                key={task.id}
+                onClick={() => navigate("/tasks")}
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer gap-3"
+              >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${priorityFlagClass(task.priority)}`}>
                     <Flag size={13} />
@@ -805,7 +1047,8 @@ const Dashboard = () => {
                       {task.department || task.category || "Work"} ·{" "}
                       <span className={`font-medium ${priorityTextClass(task.priority)}`}>
                         {priorityLabel(task.priority)}
-                      </span> ·{" "}
+                      </span>{" "}
+                      ·{" "}
                       {task.deadline
                         ? new Date(task.deadline.seconds * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
                         : "No deadline"}
@@ -823,7 +1066,6 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-
     </Layout>
   );
 };

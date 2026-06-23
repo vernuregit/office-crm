@@ -16,6 +16,7 @@ const NAV = [
   { to: "/tasks", icon: ClipboardList, label: "Tasks" },
   { to: "/leave", icon: CalendarClock, label: "Leave Requests" },
   { to: "/tickets", icon: ClipboardList, label: "Tickets" },
+  { to: "/learning", icon: ClipboardList, label: "Learning" },
   { to: "/attendance", icon: CalendarClock, label: "Attendance" },
   { to: "/time-logs", icon: Clock, label: "Time Logs" },
   { to: "/settings", icon: Settings, label: "Settings" },

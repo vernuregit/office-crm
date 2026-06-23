@@ -3,28 +3,28 @@ import {
   collection, getDocs, addDoc, doc,
   updateDoc, deleteDoc, serverTimestamp, query, orderBy
 } from "firebase/firestore";
-import { db }    from "../firebase/config";
-import Layout    from "../components/Layout";
+import { auth, db } from "../firebase/config";
+import Layout       from "../components/Layout";
 import {
   Plus, Search, Pencil, Trash2, X,
   ClipboardList, UserCheck, UserSquare2,
   Calendar, Flag, CheckCircle2, AlertCircle,
-  Clock, Circle, ChevronDown, Filter
+  Clock, Circle, ChevronDown, Filter, UserCog
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────
 const STATUSES = [
-  { value: "pending",     label: "Pending",     color: "text-gray-500",    bg: "bg-gray-100   border-gray-200"   },
-  { value: "in_progress", label: "In Progress", color: "text-amber-600",   bg: "bg-amber-50   border-amber-200"  },
-  { value: "completed",   label: "Completed",   color: "text-[#0F6E56]",   bg: "bg-[#E1F5EE]  border-[#5DCAA5]"  },
-  { value: "cancelled",   label: "Cancelled",   color: "text-red-500",     bg: "bg-red-50     border-red-200"    },
+  { value: "pending",     label: "Pending",     color: "text-gray-500",  bg: "bg-gray-100  border-gray-200"  },
+  { value: "in_progress", label: "In Progress", color: "text-amber-600", bg: "bg-amber-50  border-amber-200" },
+  { value: "completed",   label: "Completed",   color: "text-[#0F6E56]", bg: "bg-[#E1F5EE] border-[#5DCAA5]" },
+  { value: "cancelled",   label: "Cancelled",   color: "text-red-500",   bg: "bg-red-50    border-red-200"   },
 ];
 
 const PRIORITIES = [
-  { value: "low",    label: "Low",    color: "text-[#0F6E56]",  bg: "bg-[#E1F5EE] border-[#5DCAA5]"  },
-  { value: "medium", label: "Medium", color: "text-[#1D7872]",  bg: "bg-[#E6F1FB] border-[#85B7EB]"  },
-  { value: "high",   label: "High",   color: "text-amber-700",  bg: "bg-amber-50  border-amber-200"  },
-  { value: "urgent", label: "Urgent", color: "text-red-600",    bg: "bg-red-50    border-red-200"    },
+  { value: "low",    label: "Low",    color: "text-[#0F6E56]", bg: "bg-[#E1F5EE] border-[#5DCAA5]" },
+  { value: "medium", label: "Medium", color: "text-[#1D7872]", bg: "bg-[#E6F1FB] border-[#85B7EB]" },
+  { value: "high",   label: "High",   color: "text-amber-700", bg: "bg-amber-50  border-amber-200" },
+  { value: "urgent", label: "Urgent", color: "text-red-600",   bg: "bg-red-50    border-red-200"   },
 ];
 
 const statusMeta   = (v) => STATUSES.find(s  => s.value === v) || STATUSES[0];
@@ -36,7 +36,9 @@ const Toast = ({ msg, type, onClose }) => (
     ${type === "success" ? "bg-[#1D7872]" : "bg-red-500"} text-white text-sm font-semibold`}>
     {type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
     {msg}
-    <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100 cursor-pointer"><X size={14} /></button>
+    <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100 cursor-pointer">
+      <X size={14} />
+    </button>
   </div>
 );
 
@@ -64,6 +66,8 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
     priority:       task?.priority       || "medium",
     status:         task?.status         || "pending",
     dueDate:        task?.dueDate        || "",
+    createdBy:      task?.createdBy      || "",
+    createdByName:  task?.createdByName  || "",
   });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -216,6 +220,15 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
               className={inputCls} />
           </div>
 
+          {/* ── Created By — read-only on edit ── */}
+          {isEdit && form.createdByName && (
+            <div className="bg-[#E6F1FB] border border-[#85B7EB]/40 rounded-xl px-4 py-3 flex items-center gap-2">
+              <UserCog size={14} className="text-[#1D7872] flex-shrink-0" />
+              <span className="text-xs text-[#1D7872] font-medium">Task created by</span>
+              <span className="text-xs text-[#0F4F6B] font-bold">{form.createdByName}</span>
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-start gap-2">
               <AlertCircle size={15} className="text-red-500 flex-shrink-0 mt-0.5" />
@@ -229,7 +242,7 @@ const TaskModal = ({ task, employees, clients, onClose, onSave }) => {
               Cancel
             </button>
             <button type="submit" disabled={loading}
-              className="flex-1 bg-[#1D7872] hover:bg-[#1a3f9e] disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm border border-white/10 shadow-md shadow-blue-900/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 cursor-pointer">
+              className="flex-1 bg-[#1D7872] hover:bg-[#155e5a] disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm border border-white/10 shadow-md shadow-[#1D7872]/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 cursor-pointer">
               {loading ? "Saving…" : isEdit ? "Save Changes" : "Create Task"}
             </button>
           </div>
@@ -264,18 +277,14 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
           )}
         </div>
         <div className="flex gap-1.5 flex-shrink-0">
-          <button
-            onClick={() => onEdit(task)}
+          <button onClick={() => onEdit(task)}
             className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-[#E6F1FB] hover:border-[#85B7EB]/40 flex items-center justify-center text-gray-400 hover:text-[#1D7872] transition-all duration-200 cursor-pointer"
-            aria-label="Edit task"
-          >
+            aria-label="Edit task">
             <Pencil size={12} />
           </button>
-          <button
-            onClick={() => onDelete(task)}
+          <button onClick={() => onDelete(task)}
             className="w-7 h-7 rounded-lg bg-gray-50 border border-gray-100 hover:bg-red-50 hover:border-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-all duration-200 cursor-pointer"
-            aria-label="Delete task"
-          >
+            aria-label="Delete task">
             <Trash2 size={12} />
           </button>
         </div>
@@ -298,9 +307,7 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
         )}
         {task.dueDate && (
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full border
-            ${isOverdue
-              ? "border-red-100 bg-red-50 text-red-500"
-              : "border-gray-200 bg-gray-50 text-gray-500"}`}>
+            ${isOverdue ? "border-red-100 bg-red-50 text-red-500" : "border-gray-200 bg-gray-50 text-gray-500"}`}>
             <Calendar size={10} className="inline mr-1" />
             {new Date(task.dueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
             {isOverdue && " · Overdue"}
@@ -308,20 +315,26 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
         )}
       </div>
 
+      {/* ── Created By — always shown when present ── */}
+      {task.createdByName && (
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#F0FAF7] border border-[#B6E4D7] rounded-lg mb-3">
+          <UserCog size={11} className="text-[#1D7872] flex-shrink-0" />
+          <span className="text-xs text-[#1D7872] font-medium">Created by</span>
+          <span className="text-xs font-bold text-[#0F4F3A]">{task.createdByName}</span>
+        </div>
+      )}
+
       {/* Status selector */}
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-50">
+      <div className="flex items-center gap-2 pt-3 border-t border-gray-50">
         <span className="text-xs text-gray-400 font-medium flex-shrink-0">Status:</span>
         <div className="relative flex-1">
           <select
             value={task.status}
             onChange={e => onStatusChange(task.id, e.target.value)}
             className={`w-full text-xs font-semibold px-2.5 py-1 rounded-lg border appearance-none cursor-pointer
-                        bg-transparent focus:outline-none pr-6 ${sm.bg} ${sm.color}`}
-          >
+                        bg-transparent focus:outline-none pr-6 ${sm.bg} ${sm.color}`}>
             {STATUSES.map(s => (
-              <option key={s.value} value={s.value} className="bg-white text-gray-800">
-                {s.label}
-              </option>
+              <option key={s.value} value={s.value} className="bg-white text-gray-800">{s.label}</option>
             ))}
           </select>
           <ChevronDown size={10} className={`absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none ${sm.color}`} />
@@ -348,7 +361,7 @@ const DeleteModal = ({ task, onConfirm, onClose, loading }) => (
           Cancel
         </button>
         <button onClick={onConfirm} disabled={loading}
-          className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm shadow-red-200 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:shadow-red-200 active:translate-y-0 cursor-pointer">
+          className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white font-bold py-2.5 rounded-xl text-sm shadow-sm shadow-red-200 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 cursor-pointer">
           {loading ? "Deleting…" : "Delete"}
         </button>
       </div>
@@ -369,6 +382,16 @@ export default function Tasks() {
   const [deleteTarget,   setDeleteTarget]   = useState(null);
   const [delLoading,     setDelLoading]     = useState(false);
   const [toast,          setToast]          = useState(null);
+
+  // ── Store the full auth user object (not just the name) ──────────
+  // We resolve the real name at save-time from the employees list,
+  // which is guaranteed to be loaded by then. No race condition.
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => setCurrentUser(user));
+    return () => unsubscribe();
+  }, []);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -408,6 +431,29 @@ export default function Tasks() {
     fetchAll();
   }, []);
 
+  // ── KEY FIX: resolve admin name at save-time from already-loaded employees ──
+  // ── Resolves the admin's real name + role label ──────────────────
+const resolveAdminName = () => {
+  if (!currentUser) return "Admin";
+
+  let name = "";
+
+  // 1. Match UID in the already-loaded employees list
+  const matchInEmployees = employees.find(e => e.uid === currentUser.uid);
+  if (matchInEmployees?.name) {
+    name = matchInEmployees.name;
+  } else if (currentUser.displayName) {
+    name = currentUser.displayName;
+  } else if (currentUser.email) {
+    name = currentUser.email.split("@")[0];
+  } else {
+    name = "Admin";
+  }
+
+  // Append "(Admin)" so the card shows e.g. "Arunachalam B (Admin)"
+  return `${name} (Admin)`;
+};
+
   const handleSave = async (form, existingId) => {
     const payload = {
       title:          form.title.trim(),
@@ -421,16 +467,24 @@ export default function Tasks() {
       dueDate:        form.dueDate        || null,
       updatedAt:      serverTimestamp(),
     };
+
     if (existingId) {
+      // Edit — never overwrite createdBy/createdByName
       await updateDoc(doc(db, "tasks", existingId), payload);
       setTasks(prev => prev.map(t => t.id === existingId ? { ...t, ...payload } : t));
       showToast("Task updated");
     } else {
-      const ref = await addDoc(collection(db, "tasks"), {
+      // ── Resolve name synchronously from already-loaded data ──
+      const createdByName = resolveAdminName();
+
+      const newPayload = {
         ...payload,
-        createdAt: serverTimestamp(),
-      });
-      setTasks(prev => [{ id: ref.id, ...payload }, ...prev]);
+        createdBy:     currentUser?.uid || null,
+        createdByName: createdByName,       // ← always the correct real name
+        createdAt:     serverTimestamp(),
+      };
+      const ref = await addDoc(collection(db, "tasks"), newPayload);
+      setTasks(prev => [{ id: ref.id, ...newPayload }, ...prev]);
       showToast("Task created");
     }
   };
@@ -460,9 +514,11 @@ export default function Tasks() {
   };
 
   const filtered = tasks.filter(t => {
-    const matchSearch   = t.title?.toLowerCase().includes(search.toLowerCase()) ||
-                          t.assignedToName?.toLowerCase().includes(search.toLowerCase()) ||
-                          t.clientName?.toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      t.title?.toLowerCase().includes(search.toLowerCase()) ||
+      t.assignedToName?.toLowerCase().includes(search.toLowerCase()) ||
+      t.clientName?.toLowerCase().includes(search.toLowerCase()) ||
+      t.createdByName?.toLowerCase().includes(search.toLowerCase());
     const matchStatus   = filterStatus   === "all" || t.status   === filterStatus;
     const matchPriority = filterPriority === "all" || t.priority === filterPriority;
     return matchSearch && matchStatus && matchPriority;
@@ -479,10 +535,10 @@ export default function Tasks() {
   };
 
   const statCards = [
-    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-[#E6F1FB]",  border: "border-[#85B7EB]/40", iconColor: "text-[#1D7872]", valColor: "text-[#1D7872]"  },
-    { label: "Pending",     val: counts.pending,    icon: Circle,        bg: "bg-gray-50",    border: "border-gray-200",     iconColor: "text-gray-400",  valColor: "text-gray-700"   },
-    { label: "In Progress", val: counts.inProgress, icon: Clock,         bg: "bg-amber-50",   border: "border-amber-200",    iconColor: "text-amber-500", valColor: "text-amber-700"  },
-    { label: "Completed",   val: counts.completed,  icon: CheckCircle2,  bg: "bg-[#E1F5EE]",  border: "border-[#5DCAA5]/50", iconColor: "text-[#0F6E56]", valColor: "text-[#0F6E56]"  },
+    { label: "Total",       val: counts.total,      icon: ClipboardList, bg: "bg-[#E6F1FB]", border: "border-[#85B7EB]/40", iconColor: "text-[#1D7872]", valColor: "text-[#1D7872]" },
+    { label: "Pending",     val: counts.pending,    icon: Circle,        bg: "bg-gray-50",   border: "border-gray-200",     iconColor: "text-gray-400",  valColor: "text-gray-700"  },
+    { label: "In Progress", val: counts.inProgress, icon: Clock,         bg: "bg-amber-50",  border: "border-amber-200",    iconColor: "text-amber-500", valColor: "text-amber-700" },
+    { label: "Completed",   val: counts.completed,  icon: CheckCircle2,  bg: "bg-[#E1F5EE]", border: "border-[#5DCAA5]/50", iconColor: "text-[#0F6E56]", valColor: "text-[#0F6E56]" },
   ];
 
   return (
@@ -517,50 +573,44 @@ export default function Tasks() {
       {/* ── Toolbar ── */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
 
-        {/* Search */}
         <div className="relative flex-1 min-w-[180px]">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search tasks…" value={search}
+          <input type="text" placeholder="Search tasks, creator…" value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-800
                        placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
                        focus:border-[#1D7872] transition-all shadow-sm" />
         </div>
 
-        {/* Status filter */}
         <div className="relative">
           <Filter size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
                        font-semibold focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
-                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer
-                       hover:border-gray-300">
+                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer hover:border-gray-300">
             <option value="all">All Status</option>
             {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
 
-        {/* Priority filter */}
         <div className="relative">
           <Flag size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
             className="bg-white border border-gray-200 rounded-xl pl-8 pr-8 py-2.5 text-xs text-gray-700
                        font-semibold focus:outline-none focus:ring-2 focus:ring-[#1D7872]/20
-                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer
-                       hover:border-gray-300">
+                       focus:border-[#1D7872] appearance-none transition-all shadow-sm cursor-pointer hover:border-gray-300">
             <option value="all">All Priority</option>
             {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
           <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
 
-        {/* New Task button */}
         <button onClick={() => setModal("add")}
           className="flex items-center gap-2 bg-[#1D7872] text-white font-bold px-4 py-2.5 rounded-xl text-sm
-                     ml-auto cursor-pointer border border-white/10 shadow-md shadow-blue-900/20
-                     transition-all duration-300 ease-out hover:-translate-y-1 
-                     hover:shadow-lg hover:shadow-blue-800/30 active:translate-y-0 active:shadow-sm">
+                     ml-auto cursor-pointer border border-white/10 shadow-md shadow-[#1D7872]/20
+                     transition-all duration-300 ease-out hover:-translate-y-1
+                     hover:shadow-lg active:translate-y-0 active:shadow-sm">
           <Plus size={16} /> New Task
         </button>
       </div>
